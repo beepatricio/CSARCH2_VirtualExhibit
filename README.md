@@ -66,7 +66,7 @@ npm run dev
 |---|---|
 | `src/pages/` | Place your `.mdx` files here. Astro creates automatic routing from filenames. |
 | `src/components/` | Your custom React/Astro components. |
-| `src/layouts/ExhibitLayout.astro` | Shared layout. Use it, but don't restructure it. |
+| `src/layouts/ExhibitLayout.astro` | Shared layout to be used. Don't restructure it. |
 | `astro.config.mjs` | Already configured. Only modify if adding new integrations. |
 
 ---
@@ -193,4 +193,4 @@ Astro handles routing automatically once your `.mdx` file is in `src/pages/`.
 npm run dev
 ```
 
-2. Visit your page at `localhost:4321/topic_name`.
+2. Visit your page at `localhost:4321/virtual-exhibit-template/topic_name`.
