@@ -134,8 +134,6 @@ export const photos = [
   imageCaption="Central Processing Unit"
 />
 
-*(The above is an example of a custom Astro component, \<TextWithImage>, which simply places some text beside an image. [Astro components](https://docs.astro.build/en/basics/astro-components/) are meant to provide reusable HTML templates for layouting content. Check the source code of the various components to learn more about creating them -- and if you're reading this from your IDE, run the dev server via `npm run dev` to see it render live!)*
-
 ## Fetch Stage
 
 ## Decode Stage
@@ -169,6 +167,20 @@ Want to know if you can help solve a mystery and go on the journey of an instruc
 
 - CPU image retrieved from https://askleo.com/whats_the_difference_between_i3_i5_and_i7_processors/
 - Tux image retrieved from https://en.wikipedia.org/wiki/Tux_(mascot)#/media/File:Tux.svg
+
+
+
+## Original File Template Stuff:
+
+<TextWithImage
+  body="Linux is a free and open-source operating system (OS). Whereas Microsoft's Windows and Apple's MacOS are proprietary, consumer-oriented products, Linux is a system that you truly own. Its [source code is available online](https://github.com/torvalds/linux), and due to this, anyone can take the code, modify it, and redistribute it freely."
+  imageSrc={tux.src}
+  imageAlt="Image of Tux, the Linux mascot"
+  imageCaption="Tux, the Linux mascot"
+/>
+
+
+*(The above is an example of a custom Astro component, \<TextWithImage>, which simply places some text beside an image. [Astro components](https://docs.astro.build/en/basics/astro-components/) are meant to provide reusable HTML templates for layouting content. Check the source code of the various components to learn more about creating them -- and if you're reading this from your IDE, run the dev server via `npm run dev` to see it render live!)*
 
 
 ## Various Modern Linux Distributions
