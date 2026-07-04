@@ -121,7 +121,7 @@ export default function DecipherGame() {
                 onClick={() => setHasAcceptedBriefing(true)}
                 style={{ width: "100%", padding: "18px 0", background: "#ef4444", border: "none", color: "#ffffff", fontSize: "13px", fontWeight: "900", letterSpacing: "0.2em", textTransform: "uppercase", borderRadius: "6px", cursor: "pointer", transition: "all 0.2s ease" }}
               >
-                Start Journey Now ▶
+                Start Mission Now ▶
               </button>
             </div>
           </div>
