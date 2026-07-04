@@ -70,18 +70,7 @@ export default function DecodeStage({ instruction, onComplete }) {
             <button
               key={i}
               onClick={() => (phase === "pick-opcode" ? handleOpcodeClick(i) : handleOperandClick(i))}
-              style={{
-                padding: "6px 16px",
-                background: isOpcodeChoice ? "rgba(16,185,129,0.15)" : isOperandChoice ? "rgba(245,158,11,0.15)" : "rgba(0,0,0,0.3)",
-                border: isOpcodeChoice ? "1px solid #10b981" : isOperandChoice ? "1px solid #f59e0b" : "1px solid #333",
-                color: isOpcodeChoice ? "#34d399" : isOperandChoice ? "#fbbf24" : "#e7e5e4",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontFamily: "monospace",
-                fontSize: "13px",
-                fontWeight: "bold",
-                transition: "all 0.1s ease"
-              }}
+              style={{padding: "6px 16px", background: isOpcodeChoice ? "rgba(16,185,129,0.15)" : isOperandChoice ? "rgba(245,158,11,0.15)" : "rgba(0,0,0,0.3)", border: isOpcodeChoice ? "1px solid #10b981" : isOperandChoice ? "1px solid #f59e0b" : "1px solid #333",color: isOpcodeChoice ? "#34d399" : isOperandChoice ? "#fbbf24" : "#e7e5e4", borderRadius: "4px", cursor: "pointer", fontFamily: "monospace", fontSize: "13px", fontWeight: "bold", transition: "all 0.1s ease"}}
             >
               {token}
             </button>

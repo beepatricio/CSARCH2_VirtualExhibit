@@ -75,7 +75,7 @@ export default function DecipherGame() {
     }
   };
 
-  // Briefing Landing View Guard
+  // Mission Details Landing View
   if (!hasAcceptedBriefing) {
     return (
       <div style={{ fontFamily: "monospace", color: "#e7e5e4", display: "flex", flexDirection: "column", gap: "32px", width: "100%"  }}>
@@ -130,22 +130,21 @@ export default function DecipherGame() {
     );
   }
 
-  // Final Success View Guard
+  // Final Success View 
   if (gameStage === "complete") {
     return (
-      <div>
-        <h3>Operation Successful. Pipeline Clear!</h3>
-        <p>Final Score: {score} / {INSTRUCTIONS.length}</p>
+      <div style={{ padding: "1.5rem", background: "rgba(0,0,0,0.2)", border: "1px solid #2e2a24", borderRadius: "8px" }}>
+        <h3 style={{ color: "#f61010", fontWeight: "bold", marginRight: "6px" }}>Operation Successful. Pipeline Clear!</h3>
+        <p style={{ color: "#008f5a", fontWeight: "bold", marginRight: "6px" }}>Final Score: {score} / {INSTRUCTIONS.length}</p>
       </div>
     );
   }
 
-  // THE MASTER FLOW ROUTER
-  
+  // Game Flow
   return (
     <div style={{ padding: "1.5rem", background: "rgba(0,0,0,0.2)", border: "1px solid #2e2a24", borderRadius: "8px" }}>
       
-      {/* FETCH PHASE COMPONENT */}
+      {/* Fetch phase component */}
       {gameStage === "fetch" && (
         <FetchStage 
           instruction={current} 
@@ -153,7 +152,7 @@ export default function DecipherGame() {
         />
       )}
 
-      {/* DECODE PHASE COMPONENT */}
+      {/* Decode phase component */}
       {gameStage === "decode" && (
         <DecodeStage 
           instruction={current} 
@@ -161,7 +160,7 @@ export default function DecipherGame() {
         />
       )}
 
-      {/*EXECUTE PHASE COMPONENT*/}
+      {/*Execute phase component*/}
       {gameStage === "execute" && (
         <ExecuteStage 
           instruction={current} 
