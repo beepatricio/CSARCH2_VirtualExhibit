@@ -128,11 +128,18 @@ export const photos = [
 
 
 <TextWithImage
-  body="Each of the billions of processes performed per second on a computer is handled by multiple hardware components, which all work together to execute instructions. How these instructions are processed and executed is coordinated by what is considered the “brain” of the computer, the Central Processing Unit (CPU). Through the Fetch-Decode-Execute cycle, the CPU retrieves instructions from memory, interprets their purpose, and performs the task set by these instructions. Ultimately, having an understanding of this process allows for a broader knowledge of how modern computers run and what is needed for them to run."
+  body="Every second, a modern computer executes billions of complex processes, seamlessly running applications and managing data. However, beneath the surface of recognizable assembly instructions such as – ADD, SUB, or MOV – lies a much deeper, foundational level of hardware control. This exhibit aims to dive into this hidden layer by demonstrating the core concept of microprogramming.
+  
+  In computer architecture, a single machine instruction is rarely executed as one solitary action. Instead, the CPU's Control Unit acts as both a translator and a director, breaking down high-level instructions into a precisely choreographed sequence of fundamental, atomic steps known as micro-operations (or micro-ops). Microprogramming is the method of defining and sequencing these micro-ops, dictating exactly how data flows across internal buses, which specific registers are enabled, and what hardware control signals are triggered during every single clock cycle. It is the layer of control that sits between a machine instruction and the hardware that carries it out. The CPU's microprogrammed Control Unit translates an instruction into a precise, ordered sequence of micro-operations, with each one activating specific control signals, routing data across internal buses, and enabling or disabling registers one clock cycle at a time. This exhibit puts the visitor inside that process, showing not just what the CPU does, but how it does it at the micro-operation level.
+  To illustrate this complex orchestration, our simulation will focus closely on this micro-level data routing. For example, when memory holds an instruction such as MOV AX, [ALPHA], the exhibit will explicitly demonstrate the underlying micro-architecture at work:
+  "
   imageSrc={cpu.src}
   imageAlt="Image of Cpu"
   imageCaption="Central Processing Unit"
 />
+* **Fetch:** It will show the exact sequence of moving the target address into the Memory Address Register (MAR), triggering a memory read signal, and capturing the raw instruction bytecode into the Instruction Register (IR).
+* **Decode:** It will visualize the Control Unit dissecting the instruction into its opcode and operands to determine the specific micro-program execution path.
+* **Execute:** It will highlight the exact control signals required to pull the data from the physical data memory at the [ALPHA] address and securely route it through the internal data bus to be placed into register AX.
 
 ## Fetch Stage
 
