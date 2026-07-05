@@ -178,9 +178,24 @@ into recognizable parts. That splitting and interpretation is the core of the de
 > 1. A separated **opcode** + **operand(s)** pair.
 > 2. A route from the Control Unit to tell the Execute stage what to handle next.
 
-
 ## Execute Stage
+<div style={{ textAlign: "justify" }}>
+After the opcode and operands are identified in the Decode stage, the instruction's effect gets carried out. Unlike Fetch and Decode, which always follow the same fixed sequence, Execute has no single path. The Control Unit uses the decoded opcode to select one of several routes, of which are a register-to-register move through the ALU, a memory read or write through the MAR and MBR, an immediate value straight from the IR, or a branch that overwrites the PC. It then activates the control signals needed to carry data along it. Once execution finishes, the cycle restarts from Fetch to process the next instruction in memory.
+</div>
 
+<h3 class="text-xl font-bold mt-6 mb-4">Key Components of the Execute Stage</h3>
+
+* **Arithmetic Logic Unit (ALU):** Performs arithmetic (ADD, SUB) and logical operations. Even a plain register-to-register move passes through the ALU, since it sits on the CPU's main internal data path.
+* **Temp Register:** A small holding register that briefly stages a value on its way into the ALU, keeping the ALU's inputs and outputs from overlapping mid-operation.
+* **General-Purpose Registers:** Hold the operand values an instruction reads from, and store the result it writes back to.
+* **Memory Address Register (MAR) & Memory Buffer Register (MBR):** As reused from the Fetch stage, the MAR holds the target address for a memory access, and the MBR temporarily holds the value being read from or written to memory.
+* **Program Counter (PC):** Normally just holds the next address to fetch, but for branch/jump instructions, Execute overwrites it directly to redirect the CPU.
+
+> <h3 class="text-xl font-bold mt-6 mb-4"> Operational Takeaways</h3>
+>
+> The Execute stage is where the Fetch-Decode-Execute cycle closes the loop:
+> 1. The route chosen by the Control Unit determines which components activate as not every instruction touches the same hardware.
+> 2. Whether the result lands in a register, in memory, or in the Program Counter itself, execution ends with the CPU ready to fetch its next instruction.
 
 ## Be the "CPU" Game
 Do you think you have what it takes to take on the mission of processing instructions in the CPU? Click the button below and start your mission to find out! Goodluck, Agent!
