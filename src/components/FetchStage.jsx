@@ -50,8 +50,85 @@ const WRONG_CHOICES = [
   "PC → Decode Stage",
 ];
 
+const FETCH_DIAGRAM_STAGES = ["PC", "MAR", "Memory", "MBR", "IR"];
+
 function shuffle(array) {
   return [...array].sort(() => Math.random() - 0.5);
+}
+
+function DiagramBox({ label, revealed }) {
+  return (
+    <div
+      style={{
+        flex: "1 1 100px",
+        padding: "10px 8px",
+        textAlign: "center",
+        borderRadius: "6px",
+        fontFamily: "monospace",
+        fontSize: "12px",
+        fontWeight: "bold",
+        border: "1px solid #2e2a24",
+        background: "#0c0a09",
+        color: "#e7e5e4",
+      }}
+    >
+      {revealed ? label : "?"}
+    </div>
+  );
+}
+
+function DiagramArrow() {
+  return (
+    <div
+      style={{
+        padding: "0 4px",
+        fontSize: "14px",
+        color: "#3f3a34",
+      }}
+    >
+      →
+    </div>
+  );
+}
+
+function FetchDiagram({ currentStep, locked }) {
+  return (
+    <div
+      style={{
+        padding: "1rem",
+        background: "#0c0a09",
+        border: "1px solid #1c1917",
+        borderRadius: "6px",
+        marginBottom: "1.25rem",
+      }}
+    >
+      <p
+        style={{
+          margin: "0 0 10px 0",
+          fontSize: "10px",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          color: "#57534e",
+          fontFamily: "monospace",
+        }}
+      >
+        Fetch Data Diagram
+      </p>
+      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "2px" }}>
+        {FETCH_DIAGRAM_STAGES.map((label, idx) => {
+          // A stage's box reveals its label once you've moved past it, or the
+          // instant you answer its own question correctly (locked === true).
+          const revealed = idx < currentStep || (idx === currentStep && locked);
+          return (
+            <div key={label} style={{ display: "flex", alignItems: "center" }}>
+              <DiagramBox label={label} revealed={revealed} />
+              {idx < FETCH_DIAGRAM_STAGES.length - 1 && <DiagramArrow />}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export default function FetchStage({ onComplete }) {
@@ -105,6 +182,8 @@ export default function FetchStage({ onComplete }) {
       <p style={{ fontSize: "12px", color: "#2c2c2c", margin: "4px 0 12px 0" }}>
         Step {currentStep + 1} / {FETCH_STEPS.length}
       </p>
+
+      <FetchDiagram currentStep={currentStep} locked={locked} />
 
       <div
         style={{
