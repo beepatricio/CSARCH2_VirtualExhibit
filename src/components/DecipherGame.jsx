@@ -168,7 +168,7 @@ export default function DecipherGame() {
   if (gameStage === "gameover") {
     return (
       <div style={{ padding: "1.5rem", background: "#141210", border: "1px solid rgba(239,68,68,0.4)", borderRadius: "8px", fontFamily: "monospace" }}>
-        <h3 style={{ color: "#f87171", fontWeight: "bold", margin: "0 0 8px 0" }}>Mission Failed — Out of Lives</h3>
+        <h3 style={{ color: "#f87171", fontWeight: "bold", margin: "0 0 8px 0" }}>Mission Failed. Out of Lives!</h3>
         <p style={{ color: "#d6d3d1", fontSize: "13px", margin: "0 0 16px 0" }}>
           Final score: {String(score).padStart(4, "0")}.
         </p>
