@@ -1,9 +1,5 @@
-// ExecuteStage.jsx
 import { useState, useMemo, useEffect } from "react";
 
-// Same 5 instructions Decode works with, using the same BX / [BX] /
-// LOOP_START wording, so the vocabulary stays consistent across stages even
-// though each stage picks its own instruction order.
 const EXECUTE_PLANS = {
   "mov-reg-reg": {
     display: "MOV AX, BX",
@@ -64,8 +60,7 @@ const WRONG_CHOICES = [
   "ALU → PC", "PC → MAR", "IR[imm] → MBR", "IR[imm] → Memory",
 ];
 
-// Execute is worth 100 points total, same as Fetch and Decode, split across
-// every micro-op question across all 5 instructions (however many that is).
+// Score points for each step of the stage so that total is 100
 function distributePoints(count, total = 100) {
   const base = Math.floor(total / count);
   const remainder = total - base * count;
@@ -78,15 +73,12 @@ function shuffle(array) {
   return [...array].sort(() => Math.random() - 0.5);
 }
 
-// Strips a "[imm]"-style suffix so "IR[imm]" still matches the "IR" box.
+// removes [imm] for better layout in diagram
 function baseNode(token) {
   return token.replace(/\[.*\]/, "");
 }
 
-// Same box language as Fetch/Decode's DiagramBox, extended with a third
-// "visited" state (green) alongside "active" (amber, the step in progress)
-// and "idle" (dim), since Execute's path has real step-by-step history.
-function DiagramBox({ label, state }) {
+function DiagramBox({ label, state, revealed }) {
   const styles = {
     active: { border: "1px solid #f59e0b", background: "rgba(245,158,11,0.16)", color: "#fbbf24", boxShadow: "0 0 12px rgba(245,158,11,0.25)" },
     visited: { border: "1px solid #10b981", background: "rgba(16,185,129,0.12)", color: "#34d399", boxShadow: "none" },
@@ -107,7 +99,7 @@ function DiagramBox({ label, state }) {
         ...styles,
       }}
     >
-      {label}
+      {revealed ? label : "?"}
     </div>
   );
 }
@@ -120,7 +112,7 @@ function DiagramArrow({ active }) {
   );
 }
 
-function ExecuteDiagram({ nodes, visited, active }) {
+function ExecuteDiagram({ nodes, visited, active, locked }) {
   return (
     <div style={{ padding: "1rem", background: "#0c0a09", border: "1px solid #1c1917", borderRadius: "6px", marginBottom: "1.25rem" }}>
       <p style={{ margin: "0 0 10px 0", fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", color: "#78716c", fontFamily: "monospace" }}>
@@ -129,10 +121,11 @@ function ExecuteDiagram({ nodes, visited, active }) {
       <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "2px" }}>
         {nodes.map((node, i) => {
           const state = active.includes(node) ? "active" : visited.includes(node) ? "visited" : "idle";
+          const revealed = state === "visited" || (state === "active" && locked);
           const arrowActive = active.includes(node) && active.includes(nodes[i + 1]);
           return (
             <div key={node + i} style={{ display: "flex", alignItems: "center" }}>
-              <DiagramBox label={node} state={state} />
+              <DiagramBox label={node} state={state} revealed={revealed} />
               {i < nodes.length - 1 && <DiagramArrow active={arrowActive} />}
             </div>
           );
@@ -143,7 +136,7 @@ function ExecuteDiagram({ nodes, visited, active }) {
 }
 
 export default function ExecuteStage({ onComplete, onWrong, onCorrect }) {
-  // Shuffle which order the 5 instructions come in, same approach Decode uses.
+  // shuffle order of the 5 instructions
   const order = useMemo(() => shuffle(Object.keys(EXECUTE_PLANS)), []);
 
   const [instructionIndex, setInstructionIndex] = useState(0);
@@ -152,8 +145,7 @@ export default function ExecuteStage({ onComplete, onWrong, onCorrect }) {
   const [locked, setLocked] = useState(false);
   const [finished, setFinished] = useState(false);
 
-  // Running tally of scoring moments across the WHOLE execute stage (all 5
-  // instructions) - not reset per-instruction, same pattern as Decode.
+    // tally of scoring across the whole stage
   const [actionIndex, setActionIndex] = useState(0);
 
   useEffect(() => {
@@ -195,6 +187,10 @@ export default function ExecuteStage({ onComplete, onWrong, onCorrect }) {
             if (instructionIndex === order.length - 1) {
               onComplete();
             } else {
+              setCurrentStep(0);
+              setFeedback(null);
+              setLocked(false);
+              setFinished(false);
               setInstructionIndex((prev) => prev + 1);
             }
           }, 1800);
@@ -221,7 +217,7 @@ export default function ExecuteStage({ onComplete, onWrong, onCorrect }) {
         Instruction {instructionIndex + 1} / {order.length}
       </p>
 
-      <ExecuteDiagram nodes={plan.nodes} visited={finished ? plan.nodes : visitedNodes} active={activeNodes} />
+    <ExecuteDiagram nodes={plan.nodes} visited={finished ? plan.nodes : visitedNodes} active={activeNodes} locked={locked} />
 
       {!finished ? (
         <div style={{ padding: "1.25rem", background: "#0c0a09", border: "1px solid #1c1917", borderRadius: "6px", marginBottom: "1.25rem" }}>

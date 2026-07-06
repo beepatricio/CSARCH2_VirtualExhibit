@@ -4,7 +4,7 @@ import FetchStage from "./FetchStage.jsx";
 import DecodeStage from "./DecodeStage.jsx";
 import ExecuteStage from "./ExecuteStage.jsx";
 
-const START_LIVES = 10; // total lives
+const START_LIVES = 30; // total lives
 const STAGE_META = {
   fetch: {
     level: 1,

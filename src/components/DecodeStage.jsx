@@ -1,4 +1,3 @@
-// DecodeStage.jsx
 import { useState, useMemo, useEffect } from "react";
 
 const INSTRUCTIONS = [
@@ -66,9 +65,7 @@ const ROUTE_LABELS = [
   { value: "branch", label: "Branch", hint: "IR → MAR → PC" },
 ];
 
-// Decode is also worth 100 points total. Every instruction contributes 3
-// scoring moments (opcode, operand(s), route), so across all 5 instructions
-// that's 15 scoring moments splitting the 100 points as evenly as possible.
+// Score points for each step of the stage so that total is 100
 function distributePoints(count, total = 100) {
   const base = Math.floor(total / count);
   const remainder = total - base * count;
@@ -165,9 +162,7 @@ export default function DecodeStage({ onComplete, onWrong, onCorrect }) {
   const [feedback, setFeedback] = useState(null);
   const [locked, setLocked] = useState(false);
 
-  // Running tally of scoring moments across the WHOLE decode stage (all 5
-  // instructions) - deliberately not reset when instructionIndex changes,
-  // since it needs to keep counting up through the entire stage.
+  // tally of scoring across the whole stage
   const [actionIndex, setActionIndex] = useState(0);
 
   useEffect(() => {
@@ -235,6 +230,11 @@ export default function DecodeStage({ onComplete, onWrong, onCorrect }) {
         if (instructionIndex === instructions.length - 1) {
           onComplete();
         } else {
+          setPhase("pick-opcode");
+          setChosenOpcodeIndex(null);
+          setChosenOperandIndices([]);
+          setFeedback(null);
+          setLocked(false);
           setInstructionIndex((prev) => prev + 1);
         }
       }, 4000);
