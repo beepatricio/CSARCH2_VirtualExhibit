@@ -65,6 +65,13 @@ const ROUTE_LABELS = [
   { value: "branch", label: "Branch", hint: "IR → MAR → PC" },
 ];
 
+// Score points for each step of the stage so that total is 100
+function distributePoints(count, total = 100) {
+  const base = Math.floor(total / count);
+  const remainder = total - base * count;
+  return Array.from({ length: count }, (_, i) => (i >= count - remainder ? base + 1 : base));
+}
+const DECODE_POINTS = distributePoints(INSTRUCTIONS.length * 3);
 
 function shuffle(array) {
   return [...array].sort(() => Math.random() - 0.5);
@@ -85,13 +92,13 @@ function DiagramBox({ label, sublabel, active }) {
         transition: "all 0.25s ease",
         border: active ? "1px solid #10b981" : "1px solid #2e2a24",
         background: active ? "rgba(16,185,129,0.12)" : "#0c0a09",
-        color: active ? "#34d399" : "#78716c",
+        color: active ? "#34d399" : "#a8a29e",
         boxShadow: active ? "0 0 12px rgba(16,185,129,0.25)" : "none",
       }}
     >
       <div>{label}</div>
       {sublabel && (
-        <div style={{ marginTop: "2px", fontSize: "10px", fontWeight: "normal", color: active ? "#6ee7b7" : "#57534e" }}>
+        <div style={{ marginTop: "2px", fontSize: "10px", fontWeight: "normal", color: active ? "#6ee7b7" : "#78716c" }}>
           {sublabel}
         </div>
       )}
@@ -112,7 +119,7 @@ function DiagramArrow({ active }) {
 function DecodeDiagram({ activeStage, resolvedOpcode, resolvedOperand }) {
   return (
     <div style={{ padding: "1rem", background: "#0c0a09", border: "1px solid #1c1917", borderRadius: "6px", marginBottom: "1.25rem" }}>
-      <p style={{ margin: "0 0 10px 0", fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", color: "#57534e", fontFamily: "monospace" }}>
+      <p style={{ margin: "0 0 10px 0", fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", color: "#78716c", fontFamily: "monospace" }}>
         Decode Data Path
       </p>
       <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "2px" }}>
@@ -136,7 +143,7 @@ function DecodeDiagram({ activeStage, resolvedOpcode, resolvedOperand }) {
   );
 }
 
-export default function DecodeStage({ onComplete }) {
+export default function DecodeStage({ onComplete, onWrong, onCorrect }) {
   // shuffle both the instruction order AND each instruction's choices
   const instructions = useMemo(
     () =>
@@ -154,6 +161,9 @@ export default function DecodeStage({ onComplete }) {
   const [chosenOperandIndices, setChosenOperandIndices] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [locked, setLocked] = useState(false);
+
+  // tally of scoring across the whole stage
+  const [actionIndex, setActionIndex] = useState(0);
 
   useEffect(() => {
     setPhase("pick-opcode");
@@ -175,14 +185,21 @@ export default function DecodeStage({ onComplete }) {
     return "Step 3: Pick the execution route the Control Unit should choose.";
   }, [phase, feedback]);
 
+  function awardPoint() {
+    onCorrect(DECODE_POINTS[actionIndex] ?? 0);
+    setActionIndex((prev) => prev + 1);
+  }
+
   function handleOpcodeClick(index) {
     if (locked) return;
     if (instruction.choices[index].role === "opcode") {
       setChosenOpcodeIndex(index);
       setFeedback({ tone: "good", text: "Correct! Opcode captured." });
       setPhase("pick-operands");
+      awardPoint();
     } else {
       setFeedback({ tone: "bad", text: "Incorrect opcode choice." });
+      onWrong();
     }
   }
 
@@ -194,9 +211,11 @@ export default function DecodeStage({ onComplete }) {
       if (operandChoiceIndices.every((i) => updated.includes(i))) {
         setFeedback({ tone: "good", text: "All operands identified." });
         setPhase("pick-route");
+        awardPoint();
       }
     } else {
       setFeedback({ tone: "bad", text: "Incorrect operand choice." });
+      onWrong();
     }
   }
 
@@ -205,16 +224,23 @@ export default function DecodeStage({ onComplete }) {
     if (route === instruction.correctRoute) {
       setFeedback({ tone: "good", text: instruction.explanation });
       setLocked(true);
+      awardPoint();
 
       setTimeout(() => {
         if (instructionIndex === instructions.length - 1) {
           onComplete();
         } else {
+          setPhase("pick-opcode");
+          setChosenOpcodeIndex(null);
+          setChosenOperandIndices([]);
+          setFeedback(null);
+          setLocked(false);
           setInstructionIndex((prev) => prev + 1);
         }
       }, 4000);
     } else {
       setFeedback({ tone: "bad", text: `Not quite. ${instruction.routeHint}` });
+      onWrong();
     }
   }
 
@@ -235,7 +261,10 @@ export default function DecodeStage({ onComplete }) {
   return (
     <div>
       <span style={{ color: "#ef4444", fontSize: "11px", fontWeight: "bold" }}>[ STAGE 02: DECODE PHASE ]</span>
-      <p style={{ fontSize: "12px", color: "#a8a29e", margin: "4px 0 12px 0", fontFamily: "monospace" }}>{phaseInstruction}</p>
+      <p style={{ fontSize: "12px", color: "#a8a29e", margin: "4px 0 4px 0", fontFamily: "monospace" }}>{phaseInstruction}</p>
+      <p style={{ fontSize: "11px", color: "#78716c", margin: "0 0 12px 0", fontFamily: "monospace" }}>
+        Instruction {instructionIndex + 1} / {instructions.length}
+      </p>
 
       <DecodeDiagram activeStage={activeStage} resolvedOpcode={resolvedOpcode} resolvedOperand={resolvedOperand} />
 
@@ -248,7 +277,7 @@ export default function DecodeStage({ onComplete }) {
               key={i}
               onClick={() => (phase === "pick-opcode" ? handleOpcodeClick(i) : handleOperandClick(i))}
               disabled={locked || phase === "pick-route"}
-              style={{ padding: "6px 16px", background: isOpcodeChoice ? "rgba(16,185,129,0.15)" : isOperandChoice ? "rgba(245,158,11,0.15)" : "rgba(0,0,0,0.3)", border: isOpcodeChoice ? "1px solid #10b981" : isOperandChoice ? "1px solid #f59e0b" : "1px solid #333", color: isOpcodeChoice ? "#34d399" : isOperandChoice ? "#fbbf24" : "#e7e5e4", borderRadius: "4px", cursor: (locked || phase === "pick-route") ? "not-allowed" : "pointer", fontFamily: "monospace", fontSize: "13px", fontWeight: "bold", transition: "all 0.1s ease" }}
+              style={{ padding: "6px 16px", background: isOpcodeChoice ? "rgba(16,185,129,0.15)" : isOperandChoice ? "rgba(245,158,11,0.15)" : "#0c0a09", border: isOpcodeChoice ? "1px solid #10b981" : isOperandChoice ? "1px solid #f59e0b" : "1px solid #2e2a24", color: isOpcodeChoice ? "#34d399" : isOperandChoice ? "#fbbf24" : "#e7e5e4", borderRadius: "4px", cursor: (locked || phase === "pick-route") ? "not-allowed" : "pointer", fontFamily: "monospace", fontSize: "13px", fontWeight: "bold", transition: "all 0.1s ease" }}
             >
               {token.text}
             </button>
@@ -261,7 +290,7 @@ export default function DecodeStage({ onComplete }) {
           {ROUTE_LABELS.map((opt) => (
             <button key={opt.value} onClick={() => handleRouteClick(opt.value)} disabled={locked} style={{ padding: "12px", textAlign: "left", background: "#0c0a09", border: "1px solid #2e2a24", borderRadius: "6px", cursor: locked ? "not-allowed" : "pointer", color: "#e7e5e4", fontFamily: "monospace" }}>
               <div style={{ fontSize: "13px", fontWeight: "bold", color: "#f5f5f4" }}>{opt.label}</div>
-              <div style={{ fontSize: "11px", color: "#78716c", marginTop: "4px", borderTop: "1px solid #1c1917", paddingTop: "4px" }}>{opt.hint}</div>
+              <div style={{ fontSize: "11px", color: "#a8a29e", marginTop: "4px", borderTop: "1px solid #1c1917", paddingTop: "4px" }}>{opt.hint}</div>
             </button>
           ))}
         </div>
