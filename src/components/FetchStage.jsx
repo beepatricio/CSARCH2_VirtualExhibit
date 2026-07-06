@@ -1,3 +1,4 @@
+// FetchStage.jsx
 import { useState, useMemo } from "react";
 
 const FETCH_STEPS = [
@@ -51,6 +52,11 @@ const WRONG_CHOICES = [
 ];
 
 const FETCH_DIAGRAM_STAGES = ["PC", "MAR", "Memory", "MBR", "IR"];
+
+// This stage is worth a flat 100 points, split evenly across its 5 fixed
+// steps (20 each) - independent of whichever instruction Decode/Execute end
+// up working with, since Fetch itself is instruction-agnostic.
+const POINTS_PER_STEP = 20;
 
 function shuffle(array) {
   return [...array].sort(() => Math.random() - 0.5);
@@ -108,7 +114,7 @@ function FetchDiagram({ currentStep, locked }) {
           fontSize: "10px",
           letterSpacing: "0.1em",
           textTransform: "uppercase",
-          color: "#57534e",
+          color: "#78716c",
           fontFamily: "monospace",
         }}
       >
@@ -131,7 +137,7 @@ function FetchDiagram({ currentStep, locked }) {
   );
 }
 
-export default function FetchStage({ onComplete }) {
+export default function FetchStage({ onComplete, onWrong, onCorrect }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [locked, setLocked] = useState(false);
@@ -155,6 +161,7 @@ export default function FetchStage({ onComplete }) {
       });
 
       setLocked(true);
+      onCorrect(POINTS_PER_STEP);
 
       setTimeout(() => {
         if (currentStep === FETCH_STEPS.length - 1) {
@@ -170,16 +177,17 @@ export default function FetchStage({ onComplete }) {
         tone: "bad",
         text: "Incorrect. Think about where the instruction or address should move next.",
       });
+      onWrong();
     }
   }
 
   return (
     <div>
       <span style={{ color: "#ef4444", fontSize: "11px", fontWeight: "bold" }}>
-        [ STAGE 01: FETCH PHASE ]
+        [ STAGE 01: FETCH PHASE]
       </span>
 
-      <p style={{ fontSize: "12px", color: "#2c2c2c", margin: "4px 0 12px 0" }}>
+      <p style={{ fontSize: "12px", color: "#a8a29e", margin: "4px 0 12px 0", fontFamily: "monospace" }}>
         Step {currentStep + 1} / {FETCH_STEPS.length}
       </p>
 
@@ -246,12 +254,12 @@ export default function FetchStage({ onComplete }) {
             borderRadius: "6px",
             border:
               feedback.tone === "good"
-                ? "1px solid rgba(12, 128, 89, 0.3)"
+                ? "1px solid rgba(16,185,129,0.4)"
                 : "1px solid rgba(239,68,68,0.3)",
-            color: feedback.tone === "good" ? "#008f5a" : "#f87171",
+            color: feedback.tone === "good" ? "#34d399" : "#f87171",
             background:
               feedback.tone === "good"
-                ? "rgba(16,185,129,0.04)"
+                ? "rgba(16,185,129,0.08)"
                 : "rgba(239,68,68,0.04)",
             lineHeight: "1.5",
           }}
