@@ -53,22 +53,44 @@
 **1. Theme Consultation**
 * **AI Tool Used:** Gemini
 * **Purpose of AI Usage:** Consulting which theme better fits the topic of our exhibit
-* **Chat Logs:** ![Chat Log 1](assets/ai_1.png)
-* 
+* **Chat Logs:**
+<p align="center">
+  <img src="src/assets/ai_1.png" width="600">
+  <br><br>
+  <img src="src/assets/ai_2.png" width="600">
+  <br><br>
+  <img src="src/assets/ai_3.png" width="600">
+</p>
+
 **2. Formatting & File Management**
 * **AI Tool Used:** Gemini
 * **Purpose of AI Usage:** Understanding how files work for proper formatting
-* **Chat Logs:** *(See image_78e5ba.png for screenshot records regarding MDX file layouts and table of contents)*
+* **Chat Logs:**
+<p align="center">
+  <img src="src/assets/ai_4.png" width="600">
+  <br><br>
+  <img src="src/assets/ai_5.png" width="600">
+</p>
 
 **3. React State Management**
 * **AI Tool Used:** Gemini
 * **Purpose of AI Usage:** Understanding how React keeps track of data changes
-* **Chat Logs:** *(See image_78e91d.png for screenshot records explaining `useState` and `useEffect`)*
+* **Chat Logs:**
+<p align="center">
+  <img src="src/assets/ai_6.png" width="600">
+  <br><br>
+  <img src="src/assets/ai_7.png" width="600">
+</p>
 
 **4. Dynamic UI Logic**
 * **AI Tool Used:** Gemini
 * **Purpose of AI Usage:** Understanding how the code flow will be if diagram box will get highlighted depending on game's phase
-* **Chat Logs:** *(See image_78e91d.png for screenshot records regarding reactive flow and UI rendering)*
+* **Chat Logs:**
+<p align="center">
+  <img src="src/assets/ai_8.png" width="600">
+  <br><br>
+  <img src="src/assets/ai_79.png" width="600">
+</p>
 
 ---
 
