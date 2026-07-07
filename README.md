@@ -89,7 +89,7 @@
 <p align="center">
   <img src="src/assets/ai_8.png" width="600">
   <br><br>
-  <img src="src/assets/ai_79.png" width="600">
+  <img src="src/assets/ai_9.png" width="600">
 </p>
 
 ---
