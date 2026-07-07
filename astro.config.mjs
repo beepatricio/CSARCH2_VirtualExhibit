@@ -5,6 +5,6 @@ import icon from 'astro-icon';
 
 export default defineConfig({
   site: "https://beepatricio.github.io",
-  base: 'virtual-exhibit-template',
+  base: '/virtual-exhibit-template',
   integrations: [mdx(), react(), icon()],
 });
