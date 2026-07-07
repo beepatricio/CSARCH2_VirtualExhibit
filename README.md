@@ -16,7 +16,70 @@
 
 
 ---
+## Development
 
+### Website Foundation and Development
+| Category | Details |
+| :--- | :--- |
+| **Things Learned / Fun Facts** | The main thing I learned from this project is how the development of a website is done with the help of Astro and React. |
+| **Challenges** | The main challenge was trying to figure out how all of the parts of the project work together. We had to understand how the code works before we could smoothly start to create the elements needed for our exhibit. |
+| **Creative Development** | The interactive element we developed was a game. To us, it seemed boring if the game had no theme to it, which prompted us to conceptualize a theme that could work for our topic. The two main options were an astronaut in space or a secret agent mission theme. |
+
+### Fetch Stage
+| Category | Details |
+| :--- | :--- |
+| **Things Learned / Fun Facts** | I learned how to use the useState in react to keep track of the current question, feedback and button state for the fetch state. Also learned how to make the stage use an array that stores question, answers, and explanations which makes it easier to modify |
+| **Challenges** | I found it challenging on how to manage the flow of the fetch stage, like how the choices should be randomized and it should also contain the correct answer and how to make it so that after a correct answer a feedback/explanation. |
+| **Creative Development** | I decided to make two separate arrays where one contains the wrong choices and another array for the correct choices and questions. I also decided to add instant feedback after each answer to make it a better learning experience |
+
+### Decode Stage
+| Category | Details |
+| :--- | :--- |
+| **Things Learned / Fun Facts** | - React uses useState / useEffect.<br>- useState remembers values across renders, useEffect used to "react" to a specific change/update<br>- Source and destination operand order matters, it determines meaning |
+| **Challenges** | - It was difficult at first to shuffle the five instructions and shuffle the choices per instruction's order; created "role" as metadata to track rather than index positions. |
+| **Creative Development** | - We decided to use an animated diagram to show the path a data takes, while showcasing the player's progress. |
+
+### Execute Stage
+| Category | Details |
+| :--- | :--- |
+| **Things Learned / Fun Facts** | We learned that even a simple register move like MOV AX, BX still routes through the ALU internally through a temp register rather than just directly copying the value. There's apparently no shortcut for that in the CPU. |
+| **Challenges** | This stage had five totally different sequences that were dependent on the instruction, so we had to design a whole routing table instead of just one hardcoded path. |
+| **Creative Development** | Once the player answers a last micro-op question correctly, we made it so that it shows a plain language result that reads as a real conclusion as to what actually changed in the CPU instead of just a simple "Correct!" message. |
+
+---
+
+## AI Prompts Used
+
+**1. Theme Consultation**
+* **AI Tool Used:** Gemini
+* **Purpose of AI Usage:** Consulting which theme better fits the topic of our exhibit
+* **Chat Logs:** [1](ai_1.png)
+
+**2. Formatting & File Management**
+* **AI Tool Used:** Gemini
+* **Purpose of AI Usage:** Understanding how files work for proper formatting
+* **Chat Logs:** *(See image_78e5ba.png for screenshot records regarding MDX file layouts and table of contents)*
+
+**3. React State Management**
+* **AI Tool Used:** Gemini
+* **Purpose of AI Usage:** Understanding how React keeps track of data changes
+* **Chat Logs:** *(See image_78e91d.png for screenshot records explaining `useState` and `useEffect`)*
+
+**4. Dynamic UI Logic**
+* **AI Tool Used:** Gemini
+* **Purpose of AI Usage:** Understanding how the code flow will be if diagram box will get highlighted depending on game's phase
+* **Chat Logs:** *(See image_78e91d.png for screenshot records regarding reactive flow and UI rendering)*
+
+---
+
+## References
+
+* https://react.dev/reference/react/useEffect
+* https://react.dev/reference/react/useState
+* https://docs.oracle.com/cd/E19120-01/open.solaris/817-5477/ennby/index.html
+* https://docs.astro.build/en/basics/astro-components/
+
+---
 # TOPIC THEME
 
 ## Journey of an Instruction: Microprogramming inside the CPU
