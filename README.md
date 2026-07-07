@@ -93,7 +93,12 @@
 </p>
 
 ---
+### To-Do for Final Submission
+* [ ] Complete interactive elements for the remaining execution stages.
+* [ ] Finalize Custom Exhibit Layout: Continue development of our own website layout, moving beyond the base template to fully integrate our chosen thematic design across all navigational elements.
+* [ ] Finalize deployment testing to ensure zero routing errors on the live GitHub Pages site.
 
+---
 ## References
 
 * https://react.dev/reference/react/useEffect
@@ -265,6 +270,14 @@ Player interactions will trigger state changes that control: 
 -   Execution animation completes the cycle
 
 ## Visualization
+<p align="center">
+  <img src="src/assets/vis1.png" width="48%">
+  <img src="src/assets/vis2.png" width="48%">
+  <br>
+  <img src="src/assets/vis3.png" width="48%">
+  <img src="src/assets/vis4.png" width="48%">
+</p>
+
 -  Canva: https://canva.link/uxc49k6qug0j2k1
 -  Figma: https://www.figma.com/site/f0LxSoVJyBlldW6it5o2iX/Untitled?node-id=0-1&t=1DV3mOAe31WCilG4-1
                 - For playing using figma use 1920 x 1020 for better visualization  
