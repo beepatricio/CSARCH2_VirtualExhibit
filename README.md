@@ -53,8 +53,8 @@
 **1. Theme Consultation**
 * **AI Tool Used:** Gemini
 * **Purpose of AI Usage:** Consulting which theme better fits the topic of our exhibit
-* **Chat Logs:** ![1](assets/ai_1.png) ![2](assets/ai_2.png) ![3](assets/ai_3.png)
-
+* **Chat Logs:** ![Chat Log 1](assets/ai_1.png)
+* 
 **2. Formatting & File Management**
 * **AI Tool Used:** Gemini
 * **Purpose of AI Usage:** Understanding how files work for proper formatting
