@@ -8,12 +8,21 @@ readingTime: "3 minutes"
 {/* Component Imports */}
 import TextWithImage from "../components/TextWithImage.astro"
 import DecipherGame from "../components/DecipherGame.jsx";
+import CaseBriefing from "../components/CaseBriefing.jsx";
+import CycleLoop from "../components/CycleLoop.jsx";
+import Dossier from "../components/Dossier.jsx";
+import StageStamp from "../components/StageStamp.jsx";
+import Reveal from "../components/Reveal.jsx";
 
 {/* Image Imports */}
 import cpu from "../assets/cpu.jpg"
 
+{/* Styles */}
+import "../styles/case-theme.css";
+
 # Journey of an Instruction: Microprogramming inside the CPU
 
+<CaseBriefing client:load caseCount={1}>
 <div style={{ textAlign: "justify" }}>
 <TextWithImage
   body="Every second, a modern computer executes billions of complex processes, seamlessly running applications and managing data. However, beneath the surface of recognizable assembly instructions such as – ADD, SUB, or MOV – lies a much deeper, foundational level of hardware control. This exhibit aims to dive into this hidden layer by demonstrating the core concept of microprogramming.
@@ -26,9 +35,19 @@ import cpu from "../assets/cpu.jpg"
   imageCaption="Central Processing Unit"
 />
 </div>
+
 * **Fetch:** It will show the exact sequence of moving the target address into the Memory Address Register (MAR), triggering a memory read signal, and capturing the raw instruction bytecode into the Instruction Register (IR).
 * **Decode:** It will visualize the Control Unit dissecting the instruction into its opcode and operands to determine the specific micro-program execution path.
 * **Execute:** It will highlight the exact control signals required to pull the data from the physical data memory at the [ALPHA] address and securely route it through the internal data bus to be placed into register AX.
+</CaseBriefing>
+
+<Reveal client:visible>
+<CycleLoop client:load />
+</Reveal>
+
+<Reveal client:visible>
+<div class="folder case-paper">
+<StageStamp client:visible index={1} total={3} label="Fetch Phase" color="#ef4444" />
 
 ## Fetch Stage
 <div style={{ textAlign: "justify" }}>
@@ -42,11 +61,20 @@ before finally being loaded into the <span className="font-mono text-stone-200 t
 </div>
 
 ### Key Components of the Fetch Stage
-* **Program Counter (PC):** Holds the memory address of the next instruction to be fetched. The CPU uses the value stored in the PC to determine which instruction should be retrieved from memory.
-* **Memory Address Register (MAR):** Stores the memory address received from the Program Counter. This address is then used to access the correct location in memory.
-* **Memory:** Stores program instructions and data. During the Fetch stage, memory uses the address in the MAR to locate and retrieve the requested instruction.
-* **Memory Buffer Register (MBR):** Temporarily holds the instruction retrieved from memory before it is transferred to the Instruction Register.
-* **Instruction Register (IR):** Stores the fetched instruction once it has been transferred from the MBR. The instruction remains in the IR until the CPU begins the Decode stage.
+<p style={{ fontSize: "12px", color: "#78716c", fontFamily: "monospace", margin: "0 0 4px 0" }}>Tap a folder tab to pull its case file.</p>
+<Dossier client:visible accent="#ef4444" items={[
+  { term: "Program Counter (PC)", def: "Holds the memory address of the next instruction to be fetched. The CPU uses the value stored in the PC to determine which instruction should be retrieved from memory." },
+  { term: "Memory Address Register (MAR)", def: "Stores the memory address received from the Program Counter. This address is then used to access the correct location in memory." },
+  { term: "Memory", def: "Stores program instructions and data. During the Fetch stage, memory uses the address in the MAR to locate and retrieve the requested instruction." },
+  { term: "Memory Buffer Register (MBR)", def: "Temporarily holds the instruction retrieved from memory before it is transferred to the Instruction Register." },
+  { term: "Instruction Register (IR)", def: "Stores the fetched instruction once it has been transferred from the MBR. The instruction remains in the IR until the CPU begins the Decode stage." },
+]} />
+</div>
+</Reveal>
+
+<Reveal client:visible>
+<div class="folder case-paper">
+<StageStamp client:visible index={2} total={3} label="Decode Phase" color="#10b981" />
 
 ## Decode Stage
 Once the Fetch stage finishes, the instruction in the {" "} <span className="font-mono text-stone-200 text-[11px] bg-stone-900 px-1.5 py-0.5 border border-stone-850 rounded inline-block mx-1">IR</span> 
@@ -55,16 +83,25 @@ into recognizable parts. That splitting and interpretation is the core of the de
 
 <h3 class="text-xl font-bold mt-6 mb-4">Core Component Breakdown</h3>
 
-* **Opcode:** Part of the instruction that tells what operation to perform. Short for 'operation code', it tells the CPU which action to take (e.g., ADD, MOV, SUB, or JMP). This is read first to figure out everything else.
-* **Operand(s):** Values or addresses that the instruction operates on. These are the data items that the instruction uses or modifies. For example, in the instruction *'ADD R1, R2'*, the operands are R1 and R2.
-* **Control Unit:** The part of the CPU that directs the flow of data and operations. Once the opcode is known, the Control Unit generates control signals that tell the rest of the CPU how to execute the instruction, such as which data paths to use.
-* **Instruction Decoder:** A hardware component that takes the instruction from the Instruction Register (IR) and splits it into its opcode and operand fields.
+<p style={{ fontSize: "12px", color: "#78716c", fontFamily: "monospace", margin: "0 0 4px 0" }}>Tap a folder tab to pull its case file.</p>
+<Dossier client:visible accent="#10b981" items={[
+  { term: "Opcode", def: "Part of the instruction that tells what operation to perform. Short for 'operation code', it tells the CPU which action to take (e.g., ADD, MOV, SUB, or JMP). This is read first to figure out everything else." },
+  { term: "Operand(s)", def: "Values or addresses that the instruction operates on. These are the data items that the instruction uses or modifies. For example, in the instruction 'ADD R1, R2', the operands are R1 and R2." },
+  { term: "Control Unit", def: "The part of the CPU that directs the flow of data and operations. Once the opcode is known, the Control Unit generates control signals that tell the rest of the CPU how to execute the instruction, such as which data paths to use." },
+  { term: "Instruction Decoder", def: "A hardware component that takes the instruction from the Instruction Register (IR) and splits it into its opcode and operand fields." },
+]} />
 
 ><h3 class="text-xl font-bold mt-6 mb-4"> Operational Takeaways</h3>
 
 > The Decode stage splits every incoming instruction into two primary components:
 > 1. A separated **opcode** + **operand(s)** pair.
 > 2. A route from the Control Unit to tell the Execute stage what to handle next.
+</div>
+</Reveal>
+
+<Reveal client:visible>
+<div class="folder case-paper">
+<StageStamp client:visible index={3} total={3} label="Execute Phase" color="#f59e0b" />
 
 ## Execute Stage
 <div style={{ textAlign: "justify" }}>
@@ -73,20 +110,27 @@ After the opcode and operands are identified in the Decode stage, the instructio
 
 <h3 class="text-xl font-bold mt-6 mb-4">Key Components of the Execute Stage</h3>
 
-* **Arithmetic Logic Unit (ALU):** Performs arithmetic (ADD, SUB) and logical operations. Even a plain register-to-register move passes through the ALU, since it sits on the CPU's main internal data path.
-* **Temp Register:** A small holding register that briefly stages a value on its way into the ALU, keeping the ALU's inputs and outputs from overlapping mid-operation.
-* **General-Purpose Registers:** Hold the operand values an instruction reads from, and store the result it writes back to.
-* **Memory Address Register (MAR) & Memory Buffer Register (MBR):** As reused from the Fetch stage, the MAR holds the target address for a memory access, and the MBR temporarily holds the value being read from or written to memory.
-* **Program Counter (PC):** Normally just holds the next address to fetch, but for branch/jump instructions, Execute overwrites it directly to redirect the CPU.
+<p style={{ fontSize: "12px", color: "#78716c", fontFamily: "monospace", margin: "0 0 4px 0" }}>Tap a folder tab to pull its case file.</p>
+<Dossier client:visible accent="#f59e0b" items={[
+  { term: "Arithmetic Logic Unit (ALU)", def: "Performs arithmetic (ADD, SUB) and logical operations. Even a plain register-to-register move passes through the ALU, since it sits on the CPU's main internal data path." },
+  { term: "Temp Register", def: "A small holding register that briefly stages a value on its way into the ALU, keeping the ALU's inputs and outputs from overlapping mid-operation." },
+  { term: "General-Purpose Registers", def: "Hold the operand values an instruction reads from, and store the result it writes back to." },
+  { term: "MAR & MBR", def: "Reused from the Fetch stage: the MAR holds the target address for a memory access, and the MBR temporarily holds the value being read from or written to memory." },
+  { term: "Program Counter (PC)", def: "Normally just holds the next address to fetch, but for branch/jump instructions, Execute overwrites it directly to redirect the CPU." },
+]} />
 
 > <h3 class="text-xl font-bold mt-6 mb-4"> Operational Takeaways</h3>
 >
 > The Execute stage is where the Fetch-Decode-Execute cycle closes the loop:
 > 1. The route chosen by the Control Unit determines which components activate as not every instruction touches the same hardware.
 > 2. Whether the result lands in a register, in memory, or in the Program Counter itself, execution ends with the CPU ready to fetch its next instruction.
+</div>
+</Reveal>
 
 ## Be the "CPU" Game
+<Reveal client:visible>
 Do you think you have what it takes to take on the mission of processing instructions in the CPU? Click the button below and start your mission to find out! Goodluck, Agent!
+</Reveal>
 
 <DecipherGame client:load />
 
