@@ -465,3 +465,21 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta {
     grid-template-columns: 1fr;
   }
 }
+
+.xt-overview-followup {
+  margin: 1.75rem 0 0 0;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 3px solid var(--xt-fg);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--xt-fg);
+  font-family: "Nunito", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--xt-fg-dim);
+}
+
+.xt-overview-followup strong {
+  color: var(--xt-fg);
+}

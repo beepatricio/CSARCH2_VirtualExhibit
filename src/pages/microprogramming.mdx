@@ -35,12 +35,12 @@ import DecipherGame from "../components/DecipherGame.jsx"
 
 <IntroPanel client:load>
 
-Every second, a modern computer executes billions of complex processes, seamlessly running applications and managing data. Beneath the surface of recognizable assembly instructions — ADD, SUB, MOV — lies a much deeper, foundational level of hardware control. This exhibit dives into that hidden layer to demonstrate the core concept of **microprogramming**.
+Every second, a modern computer executes billions of complex processes, seamlessly running applications and managing data. Beneath the surface of recognizable assembly instructions (ADD, SUB, MOV) lies a much deeper, foundational level of hardware control. This exhibit dives into that hidden layer to demonstrate the core concept of **microprogramming**.
 
 <TextWithImage
-  body="In computer architecture, a single machine instruction is rarely executed as one solitary action. Instead, the CPU's Control Unit acts as both a translator and a director, breaking down high-level instructions into a precisely choreographed sequence of fundamental, atomic steps known as micro-operations (or micro-ops). Microprogramming is the method of defining and sequencing these micro-ops — dictating exactly how data flows across internal buses, which registers are enabled, and what control signals are triggered during every clock cycle.
+  body="In computer architecture, a single machine instruction is rarely executed as one solitary action. Instead, the CPU's Control Unit acts as both a translator and a director, breaking down high-level instructions into a precisely choreographed sequence of fundamental, atomic steps known as micro-operations (or micro-ops). Microprogramming is the method of defining and sequencing these micro-ops, dictating exactly how data flows across internal buses, which registers are enabled, and what control signals are triggered during every clock cycle.
 
-It is the layer of control that sits between a machine instruction and the hardware that carries it out. This exhibit puts you inside that process, showing not just *what* the CPU does, but *how* it does it — one micro-operation at a time."
+It is the layer of control that sits between a machine instruction and the hardware that carries it out. This exhibit puts you inside that process, showing not just *what* the CPU does, but *how* it does it one micro-operation at a time."
   imageSrc={cpu.src}
   imageAlt="Image of a CPU"
   imageCaption="Central Processing Unit"
@@ -55,6 +55,8 @@ To illustrate this, our simulation focuses closely on one instruction — **MOV 
   <li><strong>Decode</strong>The Control Unit dissects the instruction into its opcode and operands to determine the execution path.</li>
   <li><strong>Execute</strong>Control signals pull the data from [ALPHA] and route it across the internal data bus into register AX.</li>
 </ul>
+
+<p class="xt-overview-followup">Head to <strong>Try It Yourself</strong> to see this play out! The <strong>Simulation</strong> walks you through the MOV AX, [ALPHA] instruction step by step, and once you're ready, <strong>Be the CPU</strong> lets you test what you've learned: a challenge where you play Control Unit yourself, routing real instructions through Fetch, Decode, and Execute. Every wrong move costs a life.</p>
 
 </div>
 
