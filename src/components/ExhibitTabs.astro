@@ -1,0 +1,55 @@
+---
+// full-width tab bar that switches between sibling panels
+
+const { tabs } = Astro.props;
+// tabs: [{ id: "overview", label: "Overview" }, ...]
+---
+
+<div class="xt-tabs" id="xt-tabs">
+  {tabs.map((tab, i) => (
+    <button
+      type="button"
+      class="xt-tabs__btn"
+      data-tab-target={tab.id}
+      aria-selected={i === 0 ? "true" : "false"}
+    >
+      {tab.label}
+    </button>
+  ))}
+</div>
+
+<script>
+  function initTabs() {
+    const bar = document.getElementById('xt-tabs');
+    if (!bar) return;
+
+    const buttons = Array.from(bar.querySelectorAll<HTMLButtonElement>('[data-tab-target]'));
+    const panels = Array.from(document.querySelectorAll<HTMLElement>('[data-tab-panel]'));
+
+    function activate(id: string) {
+    panels.forEach((panel) => {
+        panel.hidden = panel.dataset.tabPanel !== id;
+    });
+    buttons.forEach((btn) => {
+        const isActive = btn.dataset.tabTarget === id;
+        btn.setAttribute('aria-selected', String(isActive));
+    });
+    history.replaceState(null, '', `#${id}`);
+
+    // notify any listeners that this panel just became visible
+    document.dispatchEvent(new CustomEvent('xt-tab-activated', { detail: { id } }));
+    }
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.tabTarget) activate(btn.dataset.tabTarget);
+      });
+    });
+
+    // honor a direct link like page#stages on load, else default to first tab
+    const initial = window.location.hash.replace('#', '') || buttons[0]?.dataset.tabTarget;
+    if (initial) activate(initial);
+  }
+
+  document.addEventListener('DOMContentLoaded', initTabs);
+</script>

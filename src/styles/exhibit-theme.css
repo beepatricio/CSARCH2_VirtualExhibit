@@ -1,0 +1,412 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800&display=swap');
+
+/* Scoping strategy: this exhibit's mdx wraps its content in
+ * <div class="xt-page">. DOM nesting from ExhibitLayout.astro:
+ *
+ *   main.content > nav.toc                (sibling of content__block)
+ *   main.content > .content__block > .content__titlemeta   (sibling of .article)
+ *   main.content > .content__block > article.article > slot > .xt-page
+ *   main.content > .toc.padder             (sibling of content__block)
+ *
+ * So .content / .content__block are ANCESTORS of .xt-page (:has() works).
+ * .toc / .content__titlemeta / .header / footer are COUSINS, not ancestors
+ * (need body:has(.xt-page) as the scoping root instead).
+ * Everything else used here is a genuine DESCENDANT of .xt-page.
+ */
+
+.xt-page {
+  --xt-sky-top: #bdeeff;
+  --xt-sky-bottom: #eafff1;
+  --xt-ground: #6cc24a;
+  --xt-ground-dark: #4fa036;
+  --xt-ground-light: #86d666;
+  --xt-road: #6b6259;
+  --xt-road-edge: #eb4b3a;
+  --xt-river: #4fc3e8;
+  --xt-line: #2c5a22;
+  --xt-panel: #ffffff;
+  --xt-panel-edge: #dcefc9;
+  --xt-fg: #1c3a17;
+  --xt-fg-dim: #4c6b44;
+  --xt-fg-mute: #7f9c74;
+  --xt-fetch: #eb4b3a;
+  --xt-decode: #3fae5c;
+  --xt-execute: #f2a52c;
+  --xt-active: #ffd93f;
+  --xt-wall: #f4ecd8;
+  --xt-display: "Baloo 2", "Arial Black", "Helvetica Neue", sans-serif;
+  --xt-mono: "JetBrains Mono", "Courier New", monospace;
+  --xt-outline: 3px;
+  --xt-header-h: 70px;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body:has(.xt-page) {
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  --soil-1: #ad422b;
+  --soil-2: #cd4a2f;
+  --soil-3: #8f331f;
+  --soil-4: #e06a4a;
+  --pixel: 16px;
+  background-color: var(--soil-1) !important;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      var(--soil-2) 0 var(--pixel),
+      transparent 0 calc(var(--pixel) * 2)
+    ),
+    repeating-linear-gradient(
+      0deg,
+      var(--soil-3) 0 var(--pixel),
+      transparent 0 calc(var(--pixel) * 2)
+    ),
+    repeating-linear-gradient(
+      45deg,
+      var(--soil-4) 0 2px,
+      transparent 2px calc(var(--pixel) * 3)
+    ) !important;
+  background-size: calc(var(--pixel) * 2) calc(var(--pixel) * 2) !important;
+  background-attachment: fixed;
+  image-rendering: pixelated;
+  scrollbar-width: none; /* Firefox */
+}
+body:has(.xt-page)::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Edge */
+}
+
+/* ==========================================================================
+   TITLE HERO — full-screen static image, sits flush under the header.
+   ========================================================================== */
+
+.xt-title-hero {
+  width: calc(100% + 4rem);
+  margin-left: -2rem;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.xt-title-hero img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* kill inherited top spacing so the hero sits right under the header
+   with no dead zone */
+.xt-page > .xt-title-hero {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* ==========================================================================
+   Structural overrides — page chrome reskinned to the game palette.
+   ========================================================================== */
+
+body:has(.xt-page) .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--xt-header-h, 70px);
+  display: flex;
+  align-items: center;
+  background: none;
+  backdrop-filter: none;
+  z-index: 10000;
+  padding: 0 1.5rem;
+}
+
+body:has(.xt-page) .header__titleblock strong,
+body:has(.xt-page) .header__subtitle {
+  display: none;
+}
+
+body:has(.xt-page) .header__titleblock {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+body:has(.xt-page) .header__titleblock .button {
+  width: auto;
+  height: auto;
+  border-radius: 999px;
+  background: rgba(28, 58, 23, 0.55);
+  border: 2px solid rgba(255,255,255,0.6);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  padding: 9px 20px 9px 16px;
+  color: #ffffff;
+  font-family: var(--xt-display);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+body:has(.xt-page) .header__titleblock .button:hover {
+  transform: translateY(-2px);
+  border-color: var(--xt-active);
+}
+
+body:has(.xt-page) .header__titleblock .button svg,
+body:has(.xt-page) .header__titleblock .button [data-icon] {
+  display: none;
+}
+
+body:has(.xt-page) .header__titleblock .button::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11.5 12 4l9 7.5'/%3E%3Cpath d='M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11.5 12 4l9 7.5'/%3E%3Cpath d='M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+body:has(.xt-page) .header__titleblock .button::after {
+  content: "Home Base";
+}
+
+body:has(.xt-page) footer {
+  background: var(--xt-fg);
+  color: #eafff1;
+  border-top: none;
+  font-family: var(--xt-mono);
+  text-align: center;
+  padding: 18px 0;
+}
+
+/* ==========================================================================
+   TOC + title-meta block (cousins of .xt-page, not descendants)
+   ========================================================================== */
+
+body:has(.xt-page) .toc h2 {
+  font-family: var(--xt-display);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--xt-fg);
+  border-bottom: 2px dashed var(--xt-panel-edge);
+  padding-bottom: 8px;
+}
+body:has(.xt-page) .toc__list { list-style: none; margin: 0; padding: 0; }
+body:has(.xt-page) .toc__item { margin-bottom: 6px; }
+body:has(.xt-page) .toc__item a {
+  display: block;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--xt-fg-dim);
+  text-decoration: none;
+  background: var(--xt-sky-bottom);
+  border: 2px solid var(--xt-panel-edge);
+  border-radius: 10px;
+  padding: 8px 12px;
+  transition: all 0.15s ease;
+}
+body:has(.xt-page) .toc__item a:hover { color: #fff; background: var(--xt-fetch); border-color: var(--xt-fg); transform: translateX(2px); }
+body:has(.xt-page) .toc__item.depth-3 a { margin-left: 14px; font-size: 12px; opacity: 0.9; }
+body:has(.xt-page) .toc,
+body:has(.xt-page) .toc.padder {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+body:has(.xt-page) .content__titlemeta {
+  background: #ffffff;
+  border: 3px solid var(--xt-fg);
+  border-radius: 16px;
+  box-shadow: 5px 5px 0 var(--xt-fg);
+  color: var(--xt-fg);
+  font-family: var(--xt-display);
+}
+body:has(.xt-page) .content__titlemeta h1 { text-transform: uppercase; }
+body:has(.xt-page) .content__titlemeta span { color: var(--xt-fg-mute); font-family: "Nunito", sans-serif; }
+
+.xt-page:has(.xt-title-hero) ~ .content__titlemeta,
+body:has(.xt-page .xt-title-hero) .content__titlemeta {
+  display: none;
+}
+
+/* ==========================================================================
+   Full-width layout — .content / .content__block are ANCESTORS of .xt-page
+   ========================================================================== */
+
+.content:has(.xt-page) {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.content__block:has(.xt-page) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 2rem;
+  background: var(--xt-sky-bottom);
+}
+
+/* ==========================================================================
+   Article + content, genuine descendants of .xt-page
+   ========================================================================== */
+
+.article:has(> .xt-page) {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+.xt-page h1,
+.xt-page h2,
+.xt-page h3 {
+  color: #ffffff;
+  font-family: var(--xt-display);
+  text-transform: uppercase;
+  border-color: var(--xt-panel-edge);
+}
+.xt-page h2 { padding-bottom: 8px; margin-top: 3rem; border-bottom: 3px dashed var(--xt-panel-edge); }
+.xt-page a { color: var(--xt-fetch); font-weight: 800; }
+.xt-page code {
+  background: #fff3d6;
+  border: 2px solid var(--xt-active);
+  color: var(--xt-fg);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-family: var(--xt-mono);
+}
+.xt-page blockquote {
+  background: #eafff1;
+  border-left: 5px solid var(--xt-decode);
+  color: var(--xt-fg-dim);
+  margin: 1.5rem 0;
+  padding: 0.9rem 1.4rem;
+  border-radius: 0 12px 12px 0;
+  font-weight: 700;
+}
+.xt-page hr { border-color: var(--xt-panel-edge); border-width: 2px; border-style: dashed; }
+
+/* District panel: one panel per stage (Fetch / Decode / Execute) */
+.xt-page .district-panel {
+  position: relative;
+  background: #ffffff;
+  border: 3px solid var(--xt-fg);
+  border-radius: 16px;
+  box-shadow: 6px 6px 0 var(--xt-fg);
+  padding: 2.4rem 1.75rem 1.75rem 1.75rem;
+  margin: 3rem 0 2.25rem 0;
+}
+
+/* ==========================================================================
+   Tab bar — styled like a game HUD / level-select strip
+   ========================================================================== */
+
+.xt-tabs {
+  position: fixed;
+  top: 0;
+  right: 1.5rem;
+  height: var(--xt-header-h, 70px);
+  display: flex;
+  align-items: center;
+  left: auto;
+  width: auto;
+  z-index: 10001;
+  background: none;
+  padding: 0;
+  margin: 0;
+}
+
+.xt-tabs__btn {
+  font-family: var(--xt-display);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: var(--xt-fg);
+  border: 2px solid var(--xt-fg);
+  border-radius: 999px;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.xt-tabs__btn:hover {
+  border-color: var(--xt-active);
+  transform: translateY(-2px);
+}
+
+.xt-tabs__btn[aria-selected="true"] {
+  color: var(--xt-fg);
+  background: var(--xt-active);
+  border-color: var(--xt-fg);
+  font-weight: 800;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.25);
+}
+
+.xt-page [data-tab-panel] {
+  animation: xt-fade-in 0.18s ease;
+  padding: 0.5rem 2.5rem 4rem 2.5rem;
+}
+
+.xt-page [data-tab-panel] h2:first-of-type {
+  margin-top: 0;
+}
+
+.xt-page [data-tab-panel] .district-panel:first-of-type {
+  margin-top: 0;
+}
+
+@keyframes xt-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .xt-tabs { padding: 0.7rem 1rem; gap: 0.4rem; }
+  .xt-tabs__btn { padding: 7px 14px; font-size: 11px; }
+}
+
+.xt-page [data-tab-panel="simulation"] {
+  padding: 0;
+}
+.xt-page [data-tab-panel="simulation"] #simulation {
+  border-radius: 0;
+  border-width: 0 0 3px 0;
+  box-shadow: none;
+  width: calc(100% + 4rem);
+  margin-left: -2rem;
+}
+
+.xt-page .xt-section-caption {
+  color: #ffffff;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  opacity: 0.9;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
+}
