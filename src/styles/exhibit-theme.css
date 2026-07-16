@@ -375,7 +375,7 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta {
   margin-top: 0;
 }
 
-.xt-page [data-tab-panel] .district-panel:first-of-type {
+.xt-page [data-tab-panel] > .district-panel:first-child {
   margin-top: 0;
 }
 
@@ -409,4 +409,59 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta {
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
   margin-top: -0.5rem;
   margin-bottom: 1.5rem;
+}
+
+/* ==========================================================================
+   Overview preview list — Fetch/Decode/Execute teaser cards
+   ========================================================================== */
+
+.xt-preview-list {
+  list-style: none;
+  margin: 1.75rem 0 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.xt-preview-list li {
+  position: relative;
+  background: #ffffff;
+  border: 3px solid var(--xt-fg);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--xt-fg);
+  padding: 16px 16px 14px 16px;
+  font-family: "Nunito", sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--xt-fg-dim);
+  list-style: none;
+}
+
+.xt-preview-list li strong {
+  display: block;
+  font-family: var(--xt-display);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  color: var(--xt-fg);
+}
+
+/* stage-colored top accent bar + bold label color, matched by order */
+.xt-preview-list li:nth-child(1) { border-top: 6px solid var(--xt-fetch); }
+.xt-preview-list li:nth-child(1) strong { color: var(--xt-fetch); }
+
+.xt-preview-list li:nth-child(2) { border-top: 6px solid var(--xt-decode); }
+.xt-preview-list li:nth-child(2) strong { color: var(--xt-decode); }
+
+.xt-preview-list li:nth-child(3) { border-top: 6px solid var(--xt-execute); }
+.xt-preview-list li:nth-child(3) strong { color: var(--xt-execute); }
+
+@media (max-width: 780px) {
+  .xt-preview-list {
+    grid-template-columns: 1fr;
+  }
 }

@@ -26,18 +26,20 @@ const { tabs } = Astro.props;
     const buttons = Array.from(bar.querySelectorAll<HTMLButtonElement>('[data-tab-target]'));
     const panels = Array.from(document.querySelectorAll<HTMLElement>('[data-tab-panel]'));
 
-    function activate(id: string) {
-    panels.forEach((panel) => {
+    function activate(id: string, updateHash = true) {
+      panels.forEach((panel) => {
         panel.hidden = panel.dataset.tabPanel !== id;
-    });
-    buttons.forEach((btn) => {
+      });
+      buttons.forEach((btn) => {
         const isActive = btn.dataset.tabTarget === id;
         btn.setAttribute('aria-selected', String(isActive));
-    });
-    history.replaceState(null, '', `#${id}`);
+      });
+      if (updateHash) {
+        history.replaceState(null, '', `#${id}`);
+      }
 
-    // notify any listeners that this panel just became visible
-    document.dispatchEvent(new CustomEvent('xt-tab-activated', { detail: { id } }));
+      // notify any listeners that this panel just became visible
+      document.dispatchEvent(new CustomEvent('xt-tab-activated', { detail: { id } }));
     }
 
     buttons.forEach((btn) => {
@@ -46,9 +48,19 @@ const { tabs } = Astro.props;
       });
     });
 
-    // honor a direct link like page#stages on load, else default to first tab
-    const initial = window.location.hash.replace('#', '') || buttons[0]?.dataset.tabTarget;
-    if (initial) activate(initial);
+    // Honor a direct link like page#stages on load. Otherwise default to the
+    // first tab WITHOUT writing a hash to the URL — writing "#overview" would
+    // make the browser auto-scroll to the element with id="overview" (native
+    // anchor-scroll behavior), skipping past the title hero image above it.
+    const requestedHash = window.location.hash.replace('#', '');
+    const initial = requestedHash || buttons[0]?.dataset.tabTarget;
+    if (initial) {
+      activate(initial, Boolean(requestedHash));
+      if (!requestedHash) {
+        // guarantee we land at the very top of the page on a fresh visit
+        window.scrollTo(0, 0);
+      }
+    }
   }
 
   document.addEventListener('DOMContentLoaded', initTabs);

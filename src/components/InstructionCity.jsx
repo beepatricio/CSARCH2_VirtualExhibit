@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+// InstructionCity.jsx
+import { useState, useRef, useEffect } from "react";
 
 const STAGE_COLOR = { fetch: "#eb4b3a", decode: "#3fae5c", execute: "#f2a52c" };
 const STAGE_LABEL = { fetch: "FETCH DISTRICT", decode: "DECODE DISTRICT", execute: "EXECUTE DISTRICT" };
@@ -55,87 +56,62 @@ function curvedRoadPath(points) {
 const CANVAS_W = 1600, CANVAS_H = 430;
 const MIN_SCALE = 0.6, MAX_SCALE = 2.2, AUTO_SCALE = 1.3;
 const DEFAULT_CAMERA = { x: 0, y: 0, scale: 1 };
-const CONTENT_W = 1480 + BW - 0;
 
-export function DistrictPlate({ index, total = 3, label, color = "#eb4b3a" }) {
-  return (
-    <div
-      style={{
-        position: "absolute", top: "-22px", left: "22px", display: "inline-flex",
-        alignItems: "center", gap: "10px", fontFamily: "'Baloo 2', sans-serif",
-        fontSize: "13px", fontWeight: "800", letterSpacing: "0.04em", color: "#ffffff",
-        background: color, border: "3px solid #1c3a17", boxShadow: "3px 3px 0 #1c3a17",
-        padding: "8px 20px", borderRadius: "999px", textTransform: "uppercase", transform: "rotate(-2deg)",
-      }}
-    >
-      <span>District {String(index).padStart(2, "0")}/{String(total).padStart(2, "0")}</span>
-      {label && <span style={{ opacity: 0.85, fontWeight: "600" }}>· {label}</span>}
-    </div>
-  );
-}
+// content span, used only to size the pan "leash" — never to compute raw bounds
+const CONTENT_W = 1480 + BW - 0; // right edge of AX minus left edge of PC
 
-export function IntroPanel({ children }) {
-  const [phase, setPhase] = useState("loading");
+// ---------------------------------------------------------------------------
+// Shared style objects (dedupes what used to be repeated inline styles)
+// ---------------------------------------------------------------------------
 
-  useEffect(() => {
-    function runBriefing() {
-      setPhase("loading");
-      const t = setTimeout(() => setPhase("ready"), 900);
-      return t;
-    }
-    let timer = runBriefing();
+const districtBtnStyle = {
+  fontFamily: "'Baloo 2','Arial Black',sans-serif",
+  fontSize: "clamp(9px, 1.8vw, 12px)",
+  fontWeight: 800,
+  letterSpacing: "0.04em",
+  textTransform: "uppercase",
+  padding: "clamp(6px, 1.6vw, 9px) clamp(10px, 3vw, 16px)",
+  borderRadius: 999,
+  cursor: "pointer",
+  border: "3px solid #1c3a17",
+  background: "#ffffff",
+  color: "#1c3a17",
+  boxShadow: "3px 3px 0 #1c3a17",
+  whiteSpace: "nowrap",
+};
 
-    function onTabActivated(e) {
-      if (e.detail.id === "overview") {
-        clearTimeout(timer);
-        timer = runBriefing();
-      }
-    }
+const zoomBtnStyle = {
+  width: 36,
+  height: 36,
+  fontFamily: "'Baloo 2','Arial Black',sans-serif",
+  fontSize: 18,
+  fontWeight: 800,
+  borderRadius: 10,
+  border: "3px solid #1c3a17",
+  boxShadow: "2px 2px 0 #1c3a17",
+  background: "#ffffff",
+  color: "#1c3a17",
+  cursor: "pointer",
+  lineHeight: 1,
+};
 
-    document.addEventListener("xt-tab-activated", onTabActivated);
-    return () => {
-      clearTimeout(timer);
-      document.removeEventListener("xt-tab-activated", onTabActivated);
-    };
-  }, []);
-  return (
-    <div style={{ position: "relative", overflow: "hidden", borderRadius: "18px", border: "3px solid #1c3a17", boxShadow: "6px 6px 0 #1c3a17", margin: "0 0 2.75rem 0", background: "#ffffff" }}>
-      <style>{`
-        @keyframes ip_scan { 0% { top: 0%; opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
-        @keyframes ip_blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-      `}</style>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 22px", background: "#eafff1", borderBottom: "3px solid #1c3a17", fontFamily: "'Baloo 2', sans-serif", fontSize: "12px", fontWeight: "800", letterSpacing: "0.06em" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: "8px", color: "#3fae5c" }}>
-          <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#3fae5c", display: "inline-block", animation: "ip_blink 1.6s ease-in-out infinite" }} />
-          SIMULATION READY
-        </span>
-        <span style={{ color: "#7f9c74" }}>INSTRUCTION SET: x86</span>
-      </div>
-      <div style={{ position: "relative", padding: "2.25rem 2rem" }}>
-        <div style={{ filter: phase === "loading" ? "blur(6px) brightness(0.7)" : "none", opacity: phase === "loading" ? 0.4 : 1, transition: "filter 0.5s ease, opacity 0.5s ease", textAlign: "left", fontFamily: "'Nunito', sans-serif", color: "#4c6b44", fontWeight: "600" }}>
-          {children}
-        </div>
-        {phase === "loading" && (
-          <>
-            <div style={{ position: "absolute", left: 0, right: 0, height: "3px", background: "#ffd93f", boxShadow: "0 0 14px 2px rgba(255,217,63,0.8)", animation: "ip_scan 0.9s linear forwards", pointerEvents: "none" }} />
-            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontFamily: "'Baloo 2', sans-serif", fontSize: "13px", fontWeight: "800", letterSpacing: "0.06em", color: "#1c3a17", whiteSpace: "nowrap" }}>
-              LOADING BRIEFING...
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
+const liveDotStyle = {
+  width: "8px",
+  height: "8px",
+  borderRadius: "50%",
+  background: "#3fae5c",
+  display: "inline-block",
+  animation: "sim_live_blink 1.6s ease-in-out infinite",
+};
 
-// Plain placeholder box.. !! swap BUILDING_IMAGES[id] with a png path when ready
+// Plain placeholder box — swap BUILDING_IMAGES[id] with a PNG path when ready.
 function Building({ id, b, image, active, dimmed, value, onClick }) {
   const cx = b.x + BW / 2;
 
   return (
     <g
       opacity={dimmed ? 0.32 : 1}
-      onMouseDown={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => { e.stopPropagation(); onClick(id); }}
       style={{ cursor: "pointer", transition: "opacity 0.35s ease" }}
     >
@@ -203,7 +179,7 @@ export default function InstructionCity() {
     ny = Math.min(maxY, Math.max(-30, ny));
 
     return { x: nx, y: ny, scale: s };
-    }
+  }
 
   function moveCameraTo(midX, scale = AUTO_SCALE) {
     setAutoMove(true);
@@ -256,13 +232,27 @@ export default function InstructionCity() {
     setCamera(clampCamera(DEFAULT_CAMERA));
   }
 
-  const onMouseDown = (e) => {
+  // ---------------------------------------------------------------------
+  // Drag handling via Pointer Events + pointer capture. Capture guarantees
+  // a matching pointerup/cancel always reaches this element even if the
+  // cursor leaves the window mid-drag. Global failsafe listeners below
+  // additionally force-clear `dragging` on ANY pointerup/mouseup/selection
+  // anywhere on the page, so an accidental text-selection during the drag
+  // can never leave the gesture permanently stuck.
+  // ---------------------------------------------------------------------
+
+  const onPointerDown = (e) => {
+    if (e.button !== 0) return; // left-click / primary touch only
+    e.preventDefault(); // stop the browser from starting a text-selection drag
     setAutoMove(false);
     setDragging(true);
     dragStart.current = { x: e.clientX, y: e.clientY, camX: camera.x, camY: camera.y };
+    if (e.currentTarget.setPointerCapture) {
+      try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+    }
   };
 
-  const onMouseMove = useCallback((e) => {
+  const onPointerMove = (e) => {
     if (!dragging || !dragStart.current || !svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
@@ -270,33 +260,50 @@ export default function InstructionCity() {
     const ratio = CANVAS_W / rect.width;
     const dx = (e.clientX - dragStart.current.x) * ratio;
     const dy = (e.clientY - dragStart.current.y) * ratio;
-    const baseX = dragStart.current.camX;
-    const baseY = dragStart.current.camY;
 
     setCamera((c) =>
-        clampCamera({
-        x: baseX + dx,
-        y: baseY + dy,
+      clampCamera({
+        x: dragStart.current.camX + dx,
+        y: dragStart.current.camY + dy,
         scale: c.scale,
-        })
+      })
     );
-    }, [dragging]);
+  };
 
-  const onMouseUp = () => { setDragging(false); dragStart.current = null; };
-
-  useEffect(() => {
-    if (!dragging) return;
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-    window.addEventListener("blur", onMouseUp);
-    return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-      window.removeEventListener("blur", onMouseUp);
-    };
-  }, [dragging, onMouseMove]);
+  const endDrag = (e) => {
+    setDragging(false);
+    dragStart.current = null;
+    if (e && e.currentTarget && e.currentTarget.releasePointerCapture && e.pointerId != null) {
+      try { e.currentTarget.releasePointerCapture(e.pointerId); } catch {}
+    }
+  };
 
   useEffect(() => () => rafRef.current && cancelAnimationFrame(rafRef.current), []);
+
+  // Failsafe: while dragging, disable text selection globally and
+  // force-clear the drag state on any pointerup/mouseup/touchend/blur/
+  // selectionchange anywhere on the page.
+  useEffect(() => {
+    if (!dragging) return;
+
+    const prevUserSelect = document.body.style.userSelect;
+    document.body.style.userSelect = "none";
+
+    const forceEnd = () => {
+      setDragging(false);
+      dragStart.current = null;
+    };
+
+    const events = ["pointerup", "pointercancel", "mouseup", "touchend", "blur"];
+    events.forEach((evt) => window.addEventListener(evt, forceEnd));
+    document.addEventListener("selectionchange", forceEnd);
+
+    return () => {
+      document.body.style.userSelect = prevUserSelect;
+      events.forEach((evt) => window.removeEventListener(evt, forceEnd));
+      document.removeEventListener("selectionchange", forceEnd);
+    };
+  }, [dragging]);
 
   const roadPoints = Object.values(BUILDINGS).map((b) => ({ x: b.x + BW / 2, y: b.y + BH / 2 }));
   const roadPath = curvedRoadPath(roadPoints);
@@ -304,209 +311,154 @@ export default function InstructionCity() {
 
   return (
     <div style={{ position: "relative" }}>
-        <div
+      <div
         style={{
-            position: "absolute",
-            top: "-16px",
-            left: "50%",
-            transform: "translateX(-50%) rotate(-1deg)",
-            zIndex: 20,
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "#1c3a17",
-            color: "#ffffff",
-            fontFamily: "'Baloo 2','Arial Black',sans-serif",
-            fontSize: "clamp(11px, 2.4vw, 13px)",
-            fontWeight: 800,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            padding: "7px 18px",
-            borderRadius: "999px",
-            border: "3px solid #ffd93f",
-            boxShadow: "3px 3px 0 rgba(0,0,0,0.25)",
-            whiteSpace: "nowrap",
+          position: "absolute",
+          top: "-16px",
+          left: "50%",
+          transform: "translateX(-50%) rotate(-1deg)",
+          zIndex: 20,
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          background: "#1c3a17",
+          color: "#ffffff",
+          fontFamily: "'Baloo 2','Arial Black',sans-serif",
+          fontSize: "clamp(11px, 2.4vw, 13px)",
+          fontWeight: 800,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          padding: "7px 18px",
+          borderRadius: "999px",
+          border: "3px solid #ffd93f",
+          boxShadow: "3px 3px 0 rgba(0,0,0,0.25)",
+          whiteSpace: "nowrap",
         }}
-        >
-        <span
-            style={{
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            background: "#3fae5c",
-            display: "inline-block",
-            animation: "sim_live_blink 1.6s ease-in-out infinite",
-            }}
-        />
+      >
+        <span style={liveDotStyle} />
         SIM · LIVE
-        </div>
-        <style>{`
+      </div>
+      <style>{`
         @keyframes sim_live_blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        `}</style>
+        .xt-district-btn { transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease; }
+        .xt-district-btn:hover { transform: translateY(-3px); box-shadow: 5px 6px 0 #1c3a17; }
+        .xt-district-btn:active { transform: translateY(0); box-shadow: 1px 1px 0 #1c3a17; }
+      `}</style>
 
-        <div
+      <div
         id="simulation"
         ref={wrapRef}
         style={{
-            width: "100%",
-            fontFamily: "'Nunito',sans-serif",
-            border: "5px solid #1c3a17",
-            borderRadius: "20px",
-            boxShadow: "8px 8px 0 #1c3a17",
-            overflow: "hidden",
+          width: "100%",
+          fontFamily: "'Nunito',sans-serif",
+          border: "5px solid #1c3a17",
+          borderRadius: "20px",
+          boxShadow: "8px 8px 0 #1c3a17",
+          overflow: "hidden",
         }}
-        >
+      >
         <div style={{ textAlign: "center", padding: "34px 20px 10px", background: "linear-gradient(180deg, #bdeeff 0%, #eafff1 100%)" }}>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(10px, 2.6vw, 12px)", fontWeight: 700, letterSpacing: "0.15em", color: "#4c6b44", textTransform: "uppercase" }}>Now tracing</div>
-            <div style={{ fontFamily: "'Baloo 2','Arial Black',sans-serif", fontSize: "clamp(20px, 6vw, 34px)", marginTop: 2, color: "#1c3a17", fontWeight: 800, textTransform: "uppercase", lineHeight: 1.1 }}>MOV AX, [ALPHA]</div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(10px, 2.6vw, 12px)", fontWeight: 700, letterSpacing: "0.15em", color: "#4c6b44", textTransform: "uppercase" }}>Now tracing</div>
+          <div style={{ fontFamily: "'Baloo 2','Arial Black',sans-serif", fontSize: "clamp(20px, 6vw, 34px)", marginTop: 2, color: "#1c3a17", fontWeight: 800, textTransform: "uppercase", lineHeight: 1.1 }}>MOV AX, [ALPHA]</div>
 
-            <style>{`
-            .xt-district-btn {
-                transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
-            }
-            .xt-district-btn:hover {
-                transform: translateY(-3px);
-                box-shadow: 5px 6px 0 #1c3a17;
-            }
-            .xt-district-btn:active {
-                transform: translateY(0);
-                box-shadow: 1px 1px 0 #1c3a17;
-            }
-            `}</style>
-            <div style={{ display: "flex", justifyContent: "center", gap: "clamp(6px, 1.5vw, 10px)", marginTop: 14, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: "clamp(6px, 1.5vw, 10px)", marginTop: 14, flexWrap: "wrap" }}>
             {["fetch", "decode", "execute"].map((stage) => (
-                <button
-                key={stage}
-                onClick={() => zoomToDistrict(stage)}
-                className="xt-district-btn"
-                style={{
-                    fontFamily: "'Baloo 2','Arial Black',sans-serif",
-                    fontSize: "clamp(9px, 1.8vw, 12px)",
-                    fontWeight: 800,
-                    letterSpacing: "0.04em",
-                    textTransform: "uppercase",
-                    padding: "clamp(6px, 1.6vw, 9px) clamp(10px, 3vw, 16px)",
-                    borderRadius: 999,
-                    cursor: "pointer",
-                    border: "3px solid #1c3a17",
-                    background: "#ffffff",
-                    color: "#1c3a17",
-                    boxShadow: "3px 3px 0 #1c3a17",
-                    whiteSpace: "nowrap",
-                }}
-                >
+              <button key={stage} onClick={() => zoomToDistrict(stage)} className="xt-district-btn" style={districtBtnStyle}>
                 {STAGE_LABEL[stage]}
-                </button>
+              </button>
             ))}
-            </div>
+          </div>
         </div>
 
         <div style={{ position: "relative", width: "100%" }}>
-            <svg
+          <svg
             ref={svgRef}
             viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`}
             width="100%"
-            onMouseDown={onMouseDown}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+            onPointerLeave={(e) => { if (dragging && e.buttons === 0) endDrag(e); }}
             style={{
-                display: "block",
-                width: "100%",
-                aspectRatio: `${CANVAS_W} / ${CANVAS_H}`,
-                maxHeight: "62vh",
-                cursor: dragging ? "grabbing" : "grab",
-                touchAction: "none",
+              display: "block",
+              width: "100%",
+              aspectRatio: `${CANVAS_W} / ${CANVAS_H}`,
+              maxHeight: "62vh",
+              cursor: dragging ? "grabbing" : "grab",
+              touchAction: "none",
+              userSelect: "none",
+              WebkitUserSelect: "none",
             }}
-            >
+          >
             <defs>
-                <linearGradient id="ic-sky" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="ic-sky" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#bdeeff" />
                 <stop offset="100%" stopColor="#eafff1" />
-                </linearGradient>
-                <linearGradient id="ic-ground" x1="0" y1="0" x2="0" y2="1">
+              </linearGradient>
+              <linearGradient id="ic-ground" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#8fd670" />
                 <stop offset="100%" stopColor="#5cb03c" />
-                </linearGradient>
-                <radialGradient id="ic-vignette" cx="50%" cy="50%" r="75%">
+              </linearGradient>
+              <radialGradient id="ic-vignette" cx="50%" cy="50%" r="75%">
                 <stop offset="60%" stopColor="#000000" stopOpacity="0" />
                 <stop offset="100%" stopColor="#000000" stopOpacity="0.18" />
-                </radialGradient>
+              </radialGradient>
             </defs>
 
             <rect x="0" y="0" width={CANVAS_W} height={CANVAS_H * 0.32} fill="url(#ic-sky)" />
             <g opacity="0.7" fill="#ffffff">
-                <ellipse cx="220" cy="60" rx="60" ry="18" />
-                <ellipse cx="270" cy="52" rx="40" ry="14" />
-                <ellipse cx="980" cy="45" rx="70" ry="20" />
-                <ellipse cx="1040" cy="55" rx="42" ry="15" />
-                <ellipse cx="1380" cy="70" rx="55" ry="16" />
+              <ellipse cx="220" cy="60" rx="60" ry="18" />
+              <ellipse cx="270" cy="52" rx="40" ry="14" />
+              <ellipse cx="980" cy="45" rx="70" ry="20" />
+              <ellipse cx="1040" cy="55" rx="42" ry="15" />
+              <ellipse cx="1380" cy="70" rx="55" ry="16" />
             </g>
 
             <g style={{ transition: autoMove ? "transform 0.9s cubic-bezier(.65,0,.2,1)" : "none" }} transform={camTransform}>
-                <rect x={-CANVAS_W * 2} y={CANVAS_H * 0.24} width={CANVAS_W * 5} height={CANVAS_H} fill="url(#ic-ground)" />
+              <rect x={-CANVAS_W * 2} y={CANVAS_H * 0.24} width={CANVAS_W * 5} height={CANVAS_H} fill="url(#ic-ground)" />
 
-                {activeOp && (
+              {activeOp && (
                 <rect
-                    x={STAGE_ZONES[activeOp.stage].mid - ZONE_WIDTH / 2}
-                    y={CANVAS_H * 0.24}
-                    width={ZONE_WIDTH}
-                    height={CANVAS_H}
-                    fill={STAGE_COLOR[activeOp.stage]}
-                    opacity="0.09"
-                    rx="30"
+                  x={STAGE_ZONES[activeOp.stage].mid - ZONE_WIDTH / 2}
+                  y={CANVAS_H * 0.24}
+                  width={ZONE_WIDTH}
+                  height={CANVAS_H}
+                  fill={STAGE_COLOR[activeOp.stage]}
+                  opacity="0.09"
+                  rx="30"
                 />
-                )}
+              )}
 
-                <path d={roadPath} stroke="#6b6259" strokeWidth="20" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                <path d={roadPath} stroke="#eb4b3a" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 18" />
+              <path d={roadPath} stroke="#6b6259" strokeWidth="20" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              <path d={roadPath} stroke="#eb4b3a" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 18" />
 
-                {Object.entries(BUILDINGS).map(([id, b]) => (
+              {Object.entries(BUILDINGS).map(([id, b]) => (
                 <Building key={id} id={id} b={b} image={BUILDING_IMAGES[id]} active={activeOp && (activeOp.from === id || activeOp.to === id)} dimmed={activeOp && b.stage !== activeOp.stage} value={values[id]} onClick={onBuildingClick} />
-                ))}
-                {pulsePos && (
+              ))}
+              {pulsePos && (
                 <circle cx={pulsePos.x} cy={pulsePos.y} r="12" fill="#ffd93f" stroke="#1c3a17" strokeWidth="3" />
-                )}
+              )}
             </g>
 
             <rect x="0" y="0" width={CANVAS_W} height={CANVAS_H} fill="url(#ic-vignette)" pointerEvents="none" />
 
             <g>
-                <rect x="0" y={CANVAS_H - 46} width={CANVAS_W} height="46" fill="#1c3a17" opacity="0.55" />
-                <text
-                x={CANVAS_W / 2}
-                y={CANVAS_H - 18}
-                textAnchor="middle"
-                fontFamily="'Nunito',sans-serif"
-                fontWeight="700"
-                fontSize="15"
-                fill="#ffffff"
-                >
+              <rect x="0" y={CANVAS_H - 46} width={CANVAS_W} height="46" fill="#1c3a17" opacity="0.55" />
+              <text x={CANVAS_W / 2} y={CANVAS_H - 18} textAnchor="middle" fontFamily="'Nunito',sans-serif" fontWeight="700" fontSize="15" fill="#ffffff">
                 {activeOp ? activeOp.text : "Click a building to begin. Drag to pan, use +/− to zoom."}
-                </text>
+              </text>
             </g>
-            </svg>
+          </svg>
 
-            <div style={{ position: "absolute", bottom: 62, right: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ position: "absolute", bottom: 62, right: 14, display: "flex", flexDirection: "column", gap: 8 }}>
             <button onClick={resetSimulation} title="Reset to full map" style={zoomBtnStyle}>⟲</button>
             <div style={{ height: 4 }} />
             <button onClick={() => zoomBy(0.2)} style={zoomBtnStyle}>+</button>
             <button onClick={() => zoomBy(-0.2)} style={zoomBtnStyle}>−</button>
-            </div>
+          </div>
         </div>
-        </div>
+      </div>
     </div>
-    );
+  );
 }
-
-const zoomBtnStyle = {
-  width: 36,
-  height: 36,
-  fontFamily: "'Baloo 2','Arial Black',sans-serif",
-  fontSize: 18,
-  fontWeight: 800,
-  borderRadius: 10,
-  border: "3px solid #1c3a17",
-  boxShadow: "2px 2px 0 #1c3a17",
-  background: "#ffffff",
-  color: "#1c3a17",
-  cursor: "pointer",
-  lineHeight: 1,
-};

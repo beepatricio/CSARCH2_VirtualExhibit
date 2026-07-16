@@ -1,16 +1,21 @@
 ---
 layout: ../layouts/ExhibitLayout.astro
 title: "Journey of an Instruction"
-author: "Your Group Name"
+author: "Austria, Ma. Alexandria; Campos, Don Oswin; Encallado, Edlynn; Gildore, Andrei; Patricio, Anne Beatriz"
 readingTime: "6 minute read"
 ---
 
 import "../styles/exhibit-theme.css";
 import titleImg from "../assets/TitlePage.png";
+import cpu from "../assets/cpu.jpg";
 import ExhibitTabs from "../components/ExhibitTabs.astro"
 import ComponentPanel from "../components/ComponentPanel.jsx"
 import TeamRoster from "../components/TeamRoster.astro"
-import InstructionCity, { IntroPanel, DistrictPlate } from "../components/InstructionCity.jsx"
+import TextWithImage from "../components/TextWithImage.astro"
+import CycleLoop from "../components/CycleLoop.jsx"
+import InstructionCity from "../components/InstructionCity.jsx"
+import IntroPanel from "../components/IntroPanel.jsx"
+import DistrictPlate from "../components/DistrictPlate.jsx"
 import DecipherGame from "../components/DecipherGame.jsx"
 
 <div class="xt-page">
@@ -27,13 +32,30 @@ import DecipherGame from "../components/DecipherGame.jsx"
 ]} />
 
 <div id="overview" data-tab-panel="overview">
+
 <IntroPanel client:load>
-Every instruction a CPU runs makes the same trip through three districts:
-**Fetch**, where the instruction is pulled from memory; **Decode**, where
-the control unit figures out what it means; and **Execute**, where the
-work actually happens. This exhibit lets you walk that trip yourself,
-one micro-operation at a time.
+
+Every second, a modern computer executes billions of complex processes, seamlessly running applications and managing data. Beneath the surface of recognizable assembly instructions — ADD, SUB, MOV — lies a much deeper, foundational level of hardware control. This exhibit dives into that hidden layer to demonstrate the core concept of **microprogramming**.
+
+<TextWithImage
+  body="In computer architecture, a single machine instruction is rarely executed as one solitary action. Instead, the CPU's Control Unit acts as both a translator and a director, breaking down high-level instructions into a precisely choreographed sequence of fundamental, atomic steps known as micro-operations (or micro-ops). Microprogramming is the method of defining and sequencing these micro-ops — dictating exactly how data flows across internal buses, which registers are enabled, and what control signals are triggered during every clock cycle.
+
+It is the layer of control that sits between a machine instruction and the hardware that carries it out. This exhibit puts you inside that process, showing not just *what* the CPU does, but *how* it does it — one micro-operation at a time."
+  imageSrc={cpu.src}
+  imageAlt="Image of a CPU"
+  imageCaption="Central Processing Unit"
+/>
+
+To illustrate this, our simulation focuses closely on one instruction — **MOV AX, [ALPHA]** — and walks through exactly what happens as it travels through all three districts:
+
 </IntroPanel>
+
+<ul class="xt-preview-list">
+  <li><strong>Fetch</strong>The target address moves into the Memory Address Register (MAR), a memory read signal fires, and the raw instruction bytecode lands in the Instruction Register (IR).</li>
+  <li><strong>Decode</strong>The Control Unit dissects the instruction into its opcode and operands to determine the execution path.</li>
+  <li><strong>Execute</strong>Control signals pull the data from [ALPHA] and route it across the internal data bus into register AX.</li>
+</ul>
+
 </div>
 
 <div id="team" data-tab-panel="team">
@@ -54,18 +76,21 @@ one micro-operation at a time.
 
 ## The Stages
 
+<CycleLoop client:load />
+
 ### Stage 1 · Fetch
 
 <div class="district-panel">
   <DistrictPlate index={1} total={3} label="Fetch" color="#eb4b3a" client:load />
 
-The CPU pulls the next instruction out of memory using the program
-counter, the memory address register, and the memory buffer register.
+The Fetch stage is the first step of the Fetch–Decode–Execute cycle. Its primary purpose is to retrieve the next instruction from **Memory** and safely load it into the **IR** (Instruction Register) through a sequence of micro-operations. The process begins with the **PC**, which stores the address of the next instruction. This address is transferred to the **MAR**, allowing memory to locate the instruction. The retrieved instruction is temporarily stored in the **MBR** before finally being loaded into the **IR**, where it is prepared for the Decode stage.
 
   <ComponentPanel accent="#eb4b3a" client:load items={[
-    { term: "PC", def: "Program Counter - holds the address of the next instruction to run." },
-    { term: "MAR", def: "Memory Address Register - holds the address currently being accessed." },
-    { term: "MBR", def: "Memory Buffer Register - holds the value just read from or about to be written to memory." },
+    { term: "Program Counter (PC)", def: "Holds the memory address of the next instruction to be fetched. The CPU uses the value stored in the PC to determine which instruction should be retrieved from memory." },
+    { term: "Memory Address Register (MAR)", def: "Stores the memory address received from the Program Counter. This address is then used to access the correct location in memory." },
+    { term: "Memory", def: "Stores program instructions and data. During the Fetch stage, memory uses the address in the MAR to locate and retrieve the requested instruction." },
+    { term: "Memory Buffer Register (MBR)", def: "Temporarily holds the instruction retrieved from memory before it is transferred to the Instruction Register." },
+    { term: "Instruction Register (IR)", def: "Stores the fetched instruction once it has been transferred from the MBR. The instruction remains in the IR until the CPU begins the Decode stage." },
   ]} />
 </div>
 
@@ -74,14 +99,19 @@ counter, the memory address register, and the memory buffer register.
 <div class="district-panel">
   <DistrictPlate index={2} total={3} label="Decode" color="#3fae5c" client:load />
 
-Once the instruction sits in the instruction register, the decoder
-splits it into an opcode and its operands so the control unit knows
-what to do next.
+Once the Fetch stage finishes, the instruction in the **IR** (Instruction Register) is ready to be decoded. These are raw bits that are unrecognizable unless interpreted and split into recognizable parts. That splitting and interpretation is the core of the Decode stage.
 
   <ComponentPanel accent="#3fae5c" client:load items={[
-    { term: "IR", def: "Instruction Register - holds the instruction currently being decoded." },
-    { term: "Decoder", def: "Splits the instruction into an opcode (what to do) and operands (what to do it to)." },
+    { term: "Opcode", def: "Part of the instruction that tells what operation to perform. Short for 'operation code', it tells the CPU which action to take (e.g., ADD, MOV, SUB, or JMP). This is read first to figure out everything else." },
+    { term: "Operand(s)", def: "Values or addresses that the instruction operates on. These are the data items that the instruction uses or modifies. For example, in the instruction 'ADD R1, R2', the operands are R1 and R2." },
+    { term: "Control Unit", def: "The part of the CPU that directs the flow of data and operations. Once the opcode is known, the Control Unit generates control signals that tell the rest of the CPU how to execute the instruction, such as which data paths to use." },
+    { term: "Instruction Decoder", def: "A hardware component that takes the instruction from the Instruction Register (IR) and splits it into its opcode and operand fields." },
   ]} />
+
+  <blockquote>
+    <strong>Operational Takeaways</strong><br/>
+    The Decode stage splits every incoming instruction into two primary components: a separated opcode + operand(s) pair, and a route from the Control Unit telling the Execute stage what to handle next.
+  </blockquote>
 </div>
 
 ### Stage 3 · Execute
@@ -89,13 +119,20 @@ what to do next.
 <div class="district-panel">
   <DistrictPlate index={3} total={3} label="Execute" color="#f2a52c" client:load />
 
-The ALU performs the operation and the result lands in its destination
-register - here, AX. The cycle then restarts from Fetch.
+After the opcode and operands are identified in the Decode stage, the instruction's effect gets carried out. Unlike Fetch and Decode, which always follow the same fixed sequence, Execute has no single path. The Control Unit uses the decoded opcode to select one of several routes — a register-to-register move through the ALU, a memory read or write through the MAR and MBR, an immediate value straight from the IR, or a branch that overwrites the PC — then activates the control signals needed to carry data along it. Once execution finishes, the cycle restarts from Fetch to process the next instruction in memory.
 
   <ComponentPanel accent="#f2a52c" client:load items={[
-    { term: "ALU", def: "Arithmetic Logic Unit - performs the actual computation or data move." },
-    { term: "AX", def: "The destination register that receives the result." },
+    { term: "Arithmetic Logic Unit (ALU)", def: "Performs arithmetic (ADD, SUB) and logical operations. Even a plain register-to-register move passes through the ALU, since it sits on the CPU's main internal data path." },
+    { term: "Temp Register", def: "A small holding register that briefly stages a value on its way into the ALU, keeping the ALU's inputs and outputs from overlapping mid-operation." },
+    { term: "General-Purpose Registers", def: "Hold the operand values an instruction reads from, and store the result it writes back to." },
+    { term: "MAR & MBR", def: "Reused from the Fetch stage: the MAR holds the target address for a memory access, and the MBR temporarily holds the value being read from or written to memory." },
+    { term: "Program Counter (PC)", def: "Normally just holds the next address to fetch, but for branch/jump instructions, Execute overwrites it directly to redirect the CPU." },
   ]} />
+
+  <blockquote>
+    <strong>Operational Takeaways</strong><br/>
+    The Execute stage is where the Fetch–Decode–Execute cycle closes the loop: the route chosen by the Control Unit determines which components activate, since not every instruction touches the same hardware. Whether the result lands in a register, in memory, or in the Program Counter itself, execution ends with the CPU ready to fetch its next instruction.
+  </blockquote>
 </div>
 
 </div>
@@ -115,4 +152,5 @@ register - here, AX. The cycle then restarts from Fetch.
 <DecipherGame client:load />
 
 </div>
+
 </div>
