@@ -23,21 +23,24 @@ export default function CycleLoop() {
   return (
     <div
       style={{
-        fontFamily: "monospace",
-        padding: "1.5rem 1rem",
-        background: "#0c0a09",
-        border: "1px solid #1c1917",
-        borderRadius: "8px",
+        fontFamily: " 'Nunito', sans-serif",
+        padding: "2rem 1.5rem",
+        background: "linear-gradient(180deg, #bdeeff 0%, #eafff1 100%)",
+        border: "5px solid #1c3a17",
+        borderRadius: "20px",
+        boxShadow: "8px 8px 0 #1c3a17",
         margin: "1.5rem 0",
       }}
     >
       <p
         style={{
-          margin: "0 0 16px 0",
-          fontSize: "10px",
-          letterSpacing: "0.15em",
+          margin: "0 0 24px 0",
+          fontFamily:" 'Baloo 2', 'Arial Black', sans-serif ",
+          fontSize: "14px",
+          fontWeight: "800",
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
-          color: "#78716c",
+          color: "#1c3a17",
           textAlign: "center",
         }}
       >
@@ -50,21 +53,22 @@ export default function CycleLoop() {
             <div
               style={{
                 minWidth: "130px",
-                padding: "14px 10px",
+                padding: "16px 12px",
                 textAlign: "center",
-                borderRadius: "8px",
-                border: `1px solid ${active === i ? s.color : "#2e2a24"}`,
-                background: active === i ? `${s.color}1a` : "#0c0a09",
-                boxShadow: active === i ? `0 0 18px ${s.color}55` : "none",
+                borderRadius: "16px",
+                border: `4px solid ${active === i ? s.color : "#1c3a17"}`,
+                background: active === i ? "#fffbea" : "#ffffff",
+                boxShadow: active === i ? `6px 6px 0 ${s.color}` : "5px 5px 0 #1c3a17",
                 transition: "all 0.5s ease",
               }}
             >
               <div
                 style={{
-                  fontSize: "13px",
+                  fontFamily: " 'Baloo 2', 'Arial Black', sans-serif",
+                  fontSize: "16px",
                   fontWeight: "900",
                   letterSpacing: "0.1em",
-                  color: active === i ? s.color : "#a8a29e",
+                  color: active === i ? s.color : "#1c3a17",
                   transition: "color 0.5s ease",
                 }}
               >
@@ -72,9 +76,10 @@ export default function CycleLoop() {
               </div>
               <div
                 style={{
-                  fontSize: "10px",
-                  marginTop: "4px",
-                  color: active === i ? "#e7e5e4" : "#57534e",
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  marginTop: "5px",
+                  color: active === i ? "#4c6b44" : "#6b7f65",
                   transition: "color 0.5s ease",
                 }}
               >
@@ -84,9 +89,10 @@ export default function CycleLoop() {
             {i < STAGES.length - 1 && (
               <div
                 style={{
-                  padding: "0 6px",
-                  fontSize: "18px",
-                  color: active === i ? s.color : "#3f3a34",
+                  padding: "0 10px",
+                  fontFamily: " 'Baloo 2', 'Arial Black', sans-serif",
+                  fontSize: "26px",
+                  color: active === i ? s.color : "#1c3a17",
                   transition: "color 0.5s ease",
                 }}
               >
@@ -100,9 +106,11 @@ export default function CycleLoop() {
       <div
         style={{
           textAlign: "center",
-          marginTop: "14px",
+          marginTop: "22px",
+          fontFamily: " 'JetBrains Mono', monospace",
           fontSize: "11px",
-          color: active === STAGES.length - 1 ? STAGES[2].color : "#57534e",
+          fontWeight: "700",
+          color: active === STAGES.length - 1 ? STAGES[2].color : "#4c6b44",
           transition: "color 0.5s ease",
           letterSpacing: "0.08em",
         }}

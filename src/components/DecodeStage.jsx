@@ -83,22 +83,22 @@ function DiagramBox({ label, sublabel, active }) {
     <div
       style={{
         flex: "1 1 100px",
-        padding: "10px 8px",
+        padding: "12px 10px",
         textAlign: "center",
-        borderRadius: "6px",
-        fontFamily: "monospace",
-        fontSize: "12px",
-        fontWeight: "bold",
+        borderRadius: "12px",
+        fontFamily: "'Baloo 2', 'Arial Black', sans-serif",
+        fontSize: "13px",
+        fontWeight: "900",
         transition: "all 0.25s ease",
-        border: active ? "1px solid #10b981" : "1px solid #2e2a24",
-        background: active ? "rgba(16,185,129,0.12)" : "#0c0a09",
-        color: active ? "#34d399" : "#a8a29e",
-        boxShadow: active ? "0 0 12px rgba(16,185,129,0.25)" : "none",
+        border: active ? "3px solid #3fae5c" : "3px solid #1c3a17",
+        background: active ? "3px solid #3fae5c" : "#ffffff",
+        color: active ? "#3fae5c" : "#1c3a17",
+        boxShadow: active ? "4px 4px 0 #3fae5c" : "3px 3px 0 #1c3a17",
       }}
     >
       <div>{label}</div>
       {sublabel && (
-        <div style={{ marginTop: "2px", fontSize: "10px", fontWeight: "normal", color: active ? "#6ee7b7" : "#78716c" }}>
+        <div style={{ marginTop: "2px", fontSize: "10px", fontWeight: "700", color: active ? "#3fae5c" : "#4c6b44" }}>
           {sublabel}
         </div>
       )}
@@ -109,7 +109,7 @@ function DiagramBox({ label, sublabel, active }) {
 
 function DiagramArrow({ active }) {
   return (
-    <div style={{ padding: "0 4px", fontSize: "14px", color: active ? "#34d399" : "#3f3a34", transition: "color 0.25s ease" }}>
+    <div style={{ padding: "0 8px", fontSize: "22px", color: active ? "#3fae5c" : "#1c3a17", transition: "color 0.25s ease" }}>
       →
     </div>
   );
@@ -118,8 +118,8 @@ function DiagramArrow({ active }) {
 // Test diagram checkign which box should be lit
 function DecodeDiagram({ activeStage, resolvedOpcode, resolvedOperand }) {
   return (
-    <div style={{ padding: "1rem", background: "#0c0a09", border: "1px solid #1c1917", borderRadius: "6px", marginBottom: "1.25rem" }}>
-      <p style={{ margin: "0 0 10px 0", fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", color: "#78716c", fontFamily: "monospace" }}>
+    <div style={{ padding: "1rem", background: "#eafff1", border: "3px solid #1c333a17", borderRadius: "14px", marginBottom: "1.25rem" }}>
+      <p style={{ margin: "0 0 12px 0", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#4c6b44", fontFamily: "'JetBrains Mono', monospace", fontWeight: "700", }}>
         Decode Data Path
       </p>
       <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "2px" }}>
@@ -260,15 +260,15 @@ export default function DecodeStage({ onComplete, onWrong, onCorrect }) {
 
   return (
     <div>
-      <span style={{ color: "#ef4444", fontSize: "11px", fontWeight: "bold" }}>[ STAGE 02: DECODE PHASE ]</span>
-      <p style={{ fontSize: "12px", color: "#a8a29e", margin: "4px 0 4px 0", fontFamily: "monospace" }}>{phaseInstruction}</p>
-      <p style={{ fontSize: "11px", color: "#78716c", margin: "0 0 12px 0", fontFamily: "monospace" }}>
+      <span style={{ color: "#33fae5c", fontFamilly:"'Baloo 2', 'Arial Blacl', sans-serif", fontSize: "12px", fontWeight: "900" }}>[ STAGE 02: DECODE PHASE ]</span>
+      <p style={{ fontSize: "12px", color: "#1c3a17", margin: "4px 0 4px 0", fontFamily: "'JetBrains Mono', monospace", fontWeight: "700", }}>{phaseInstruction}</p>
+      <p style={{ fontSize: "11px", color: "#4c4b44", margin: "0 0 12px 0", fontFamily: "'JetBrains Mono', monospace" }}>
         Instruction {instructionIndex + 1} / {instructions.length}
       </p>
 
       <DecodeDiagram activeStage={activeStage} resolvedOpcode={resolvedOpcode} resolvedOperand={resolvedOperand} />
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", padding: "1.25rem", background: "#0c0a09", border: "1px solid #1c1917", borderRadius: "6px", marginBottom: "1.25rem" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", padding: "1.25rem", background: "#ffffff", border: "3px solid #1c3a17", borderRadius: "14px", marginBottom: "1.25rem" }}>
         {instruction.choices.map((token, i) => {
           const isOpcodeChoice = i === chosenOpcodeIndex;
           const isOperandChoice = chosenOperandIndices.includes(i);
@@ -277,7 +277,7 @@ export default function DecodeStage({ onComplete, onWrong, onCorrect }) {
               key={i}
               onClick={() => (phase === "pick-opcode" ? handleOpcodeClick(i) : handleOperandClick(i))}
               disabled={locked || phase === "pick-route"}
-              style={{ padding: "6px 16px", background: isOpcodeChoice ? "rgba(16,185,129,0.15)" : isOperandChoice ? "rgba(245,158,11,0.15)" : "#0c0a09", border: isOpcodeChoice ? "1px solid #10b981" : isOperandChoice ? "1px solid #f59e0b" : "1px solid #2e2a24", color: isOpcodeChoice ? "#34d399" : isOperandChoice ? "#fbbf24" : "#e7e5e4", borderRadius: "4px", cursor: (locked || phase === "pick-route") ? "not-allowed" : "pointer", fontFamily: "monospace", fontSize: "13px", fontWeight: "bold", transition: "all 0.1s ease" }}
+              style={{ padding: "8px 16px", background: isOpcodeChoice ? "#eafff1" : isOperandChoice ? "#fffbea" : "#fffbea", border: isOpcodeChoice ? "3px solid #3fae5c" : isOperandChoice ? "3px solid #3fae5c" : "3px solid #1c3a17", color: isOpcodeChoice ? "#3fae5c" : isOperandChoice ? "#f2a52c" : "#1c3a17", borderRadius: "4px", cursor: (locked || phase === "pick-route") ? "not-allowed" : "pointer", fontFamily: "monospace", fontSize: "13px", fontWeight: "bold", transition: "all 0.1s ease" }}
             >
               {token.text}
             </button>
@@ -288,9 +288,9 @@ export default function DecodeStage({ onComplete, onWrong, onCorrect }) {
       {phase === "pick-route" && (
         <div style={{ display: "grid", gap: "10px", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
           {ROUTE_LABELS.map((opt) => (
-            <button key={opt.value} onClick={() => handleRouteClick(opt.value)} disabled={locked} style={{ padding: "12px", textAlign: "left", background: "#0c0a09", border: "1px solid #2e2a24", borderRadius: "6px", cursor: locked ? "not-allowed" : "pointer", color: "#e7e5e4", fontFamily: "monospace" }}>
-              <div style={{ fontSize: "13px", fontWeight: "bold", color: "#f5f5f4" }}>{opt.label}</div>
-              <div style={{ fontSize: "11px", color: "#a8a29e", marginTop: "4px", borderTop: "1px solid #1c1917", paddingTop: "4px" }}>{opt.hint}</div>
+            <button key={opt.value} onClick={() => handleRouteClick(opt.value)} disabled={locked} style={{ padding: "12px", textAlign: "left", background: "#ffffff", border: "3px solid #1c3a17", borderRadius: "12px", cursor: locked ? "not-allowed" : "pointer", color: "#1c3a17", fontFamily: "'Nunito', sans-serif" }}>
+              <div style={{ fontSize: "13px", fontWeight: "900", color: "#1c3a17" }}>{opt.label}</div>
+              <div style={{ fontSize: "11px", color: "#4c6b44", marginTop: "4px", borderTop: "1px solid #1c1917", paddingTop: "4px" }}>{opt.hint}</div>
             </button>
           ))}
         </div>

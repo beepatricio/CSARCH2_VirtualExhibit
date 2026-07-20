@@ -80,21 +80,21 @@ function baseNode(token) {
 
 function DiagramBox({ label, state, revealed }) {
   const styles = {
-    active: { border: "1px solid #f59e0b", background: "rgba(245,158,11,0.16)", color: "#fbbf24", boxShadow: "0 0 12px rgba(245,158,11,0.25)" },
-    visited: { border: "1px solid #10b981", background: "rgba(16,185,129,0.12)", color: "#34d399", boxShadow: "none" },
-    idle: { border: "1px solid #2e2a24", background: "#0c0a09", color: "#a8a29e", boxShadow: "none" },
+    active: { border: "3px solid #f2a52c", background: "fffbea", color: "#f2a52c", boxShadow: "4px 4px 0 #f2a52c" },
+    visited: { border: "3px solid #3fae5c", background: "eafff1", color: "#3fae5c", boxShadow: "3px 3px 0 %3fae5c" },
+    idle: { border: "3px solid #1c3a17", background: "#ffffff", color: "#1c3a17", boxShadow: "3px 3px 0 #1c3a17" },
   }[state];
 
   return (
     <div
       style={{
         flex: "1 1 90px",
-        padding: "10px 8px",
+        padding: "12px 10px",
         textAlign: "center",
-        borderRadius: "6px",
-        fontFamily: "monospace",
-        fontSize: "12px",
-        fontWeight: "bold",
+        borderRadius: "12px",
+        fontFamily: "'Baloo 2', 'Arial Black', sans-serif",
+        fontSize: "13px",
+        fontWeight: "900",
         transition: "all 0.25s ease",
         ...styles,
       }}
@@ -106,7 +106,7 @@ function DiagramBox({ label, state, revealed }) {
 
 function DiagramArrow({ active }) {
   return (
-    <div style={{ padding: "0 4px", fontSize: "14px", color: active ? "#f59e0b" : "#3f3a34", transition: "color 0.25s ease" }}>
+    <div style={{ padding: "0 8px", fontSize: "22px", color: active ? "#f2a52c" : "#1c3a17", transition: "color 0.25s ease" }}>
       →
     </div>
   );
@@ -114,8 +114,8 @@ function DiagramArrow({ active }) {
 
 function ExecuteDiagram({ nodes, visited, active, locked }) {
   return (
-    <div style={{ padding: "1rem", background: "#0c0a09", border: "1px solid #1c1917", borderRadius: "6px", marginBottom: "1.25rem" }}>
-      <p style={{ margin: "0 0 10px 0", fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", color: "#78716c", fontFamily: "monospace" }}>
+    <div style={{ padding: "1rem", background: "#fffbea", border: "3px solid #1c3a17", borderRadius: "14px", marginBottom: "1.25rem" }}>
+      <p style={{ margin: "0 0 12px 0", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#4c6b44", fontFamily: "monospace" }}>
         Execute Data Path
       </p>
       <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "2px" }}>
@@ -208,20 +208,20 @@ export default function ExecuteStage({ onComplete, onWrong, onCorrect }) {
 
   return (
     <div>
-      <span style={{ color: "#ef4444", fontSize: "11px", fontWeight: "bold" }}>[ STAGE 03: EXECUTE PHASE ]</span>
+      <span style={{  color: "#f2a52c", fontFamily: "'Baloo 2', 'Arial Black', sans-serif", fontSize: "12px", fontWeight: "900" }}>[ STAGE 03: EXECUTE PHASE ]</span>
 
-      <p style={{ fontSize: "12px", color: "#a8a29e", margin: "4px 0 4px 0", fontFamily: "monospace" }}>
-        Executing <strong style={{ color: "#e7e5e4" }}>{plan.display}</strong> · Micro-op {Math.min(currentStep + 1, plan.steps.length)} / {plan.steps.length}
+      <p style={{ fontSize: "12px", color: "#4c6b44", margin: "4px 0 4px 0", fontFamily: "monospace", fontWeight:"700" ,}}>
+        Executing <strong style={{ color: "#1c3a17" }}>{plan.display}</strong> · Micro-op {Math.min(currentStep + 1, plan.steps.length)} / {plan.steps.length}
       </p>
-      <p style={{ fontSize: "11px", color: "#78716c", margin: "0 0 12px 0", fontFamily: "monospace" }}>
+      <p style={{ fontSize: "11px", color: "#4c6b44", margin: "0 0 12px 0", fontFamily: "monospace" }}>
         Instruction {instructionIndex + 1} / {order.length}
       </p>
 
     <ExecuteDiagram nodes={plan.nodes} visited={finished ? plan.nodes : visitedNodes} active={activeNodes} locked={locked} />
 
       {!finished ? (
-        <div style={{ padding: "1.25rem", background: "#0c0a09", border: "1px solid #1c1917", borderRadius: "6px", marginBottom: "1.25rem" }}>
-          <p style={{ color: "#e7e5e4", fontFamily: "monospace", fontSize: "14px", fontWeight: "bold", marginBottom: "14px" }}>
+        <div style={{ padding: "1.25rem", background: "#ffffff", border: "3px solid #1c3a17", borderRadius: "14px", marginBottom: "14px" }}>
+          <p style={{ color: "#1c3a17", fontFamily: "sans-serif", fontSize: "14px", fontWeight: "800", marginBottom: "14px" }}>
             {current.question}
           </p>
           <div style={{ display: "grid", gap: "10px", gridTemplateColumns: "repeat(2, 1fr)" }}>
@@ -230,7 +230,7 @@ export default function ExecuteStage({ onComplete, onWrong, onCorrect }) {
                 key={choice}
                 onClick={() => handleChoiceClick(choice)}
                 disabled={locked}
-                style={{ padding: "12px", textAlign: "left", background: "#0c0a09", border: "1px solid #2e2a24", borderRadius: "6px", cursor: locked ? "not-allowed" : "pointer", color: "#e7e5e4", fontFamily: "monospace", fontSize: "13px", fontWeight: "bold" }}
+                style={{ padding: "12px", textAlign: "left", background: locked ? "#f3f3ed" : "#fffbea", border: "3px solid #1c3a17", borderRadius: "10px", cursor: locked ? "not-allowed" : "pointer", color: "#1c3a17", fontFamily: "sans-serif", fontSize: "13px", fontWeight: "800" }}
               >
                 {choice}
               </button>
@@ -238,8 +238,8 @@ export default function ExecuteStage({ onComplete, onWrong, onCorrect }) {
           </div>
         </div>
       ) : (
-        <div style={{ padding: "1.25rem", background: "#0c0a09", border: "1px solid rgba(16,185,129,0.4)", borderRadius: "6px", marginBottom: "1.25rem", textAlign: "center" }}>
-          <span style={{ color: "#34d399", fontSize: "11px", fontWeight: "bold", letterSpacing: "0.1em" }}>EXECUTION COMPLETE</span>
+        <div style={{ padding: "1.25rem", background: "#eafff1", border: "3px solid #3fae5c", borderRadius: "14px", marginBottom: "1.25rem", textAlign: "center" }}>
+          <span style={{ color: "#3fae5c", fontSize: "11px", fontWeight: "bold", letterSpacing: "0.1em" }}>EXECUTION COMPLETE</span>
         </div>
       )}
 
