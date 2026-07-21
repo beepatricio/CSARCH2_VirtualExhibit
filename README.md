@@ -16,6 +16,59 @@
 
 
 ---
+# Final Development Documentation
+
+## Proposal Recap
+
+Our initial proposal was to create an interactive educational exhibit that teaches the Fetch–Decode–Execute cycle through a game. The goal remained consistent throughout development, although several implementation details changed as the project progressed.
+
+## Technical Discussions
+
+During development, we discussed several technical decisions:
+
+- Choosing Astro and React for the project architecture.
+- Using React state to manage stage progression.
+- Separating question data from game logic for easier maintenance.
+- Creating different execution paths instead of hardcoding one sequence.
+- Integrating Framer Motion animations without interfering with React state.
+
+## Creative Discussions
+
+Our creative direction evolved throughout the project.
+
+Initially, we explored multiple themes, including:
+- Astronaut in space
+- Secret agent mission
+- Case-based investigation
+
+As development progressed, we realized these themes did not best represent the learning objective. After several discussions, we redesigned the exhibit around a simulation-building concept to explore the Fetch District, Decode District, and Execute District. This theme better reflected the instruction cycle while making the exhibit more immersive.
+
+## Aha Moments
+
+Some important realizations during development included:
+
+- Using arrays for questions instead of hardcoded values greatly simplified maintenance.
+- Tracking answer roles instead of indexes allowed randomized questions.
+- React state naturally controlled game progression.
+- Animations significantly improved users' understanding of data movement inside the CPU.
+- The simulation-building theme better communicated the educational objective than the earlier concepts.
+
+## Challenges Encountered
+
+Throughout development, we encountered several challenges:
+
+- Learning Astro's integration with React.
+- Managing React state across multiple stages.
+- Randomizing questions while preserving validation.
+- Designing multiple execution paths.
+- Deploying correctly on GitHub Pages.
+- Redesigning the interface after changing the project's theme.
+
+## Final Outcome
+
+Compared to our initial proposal, the final project contains several improvements. We added animated instructional panels, smoother gameplay transitions, and redesigned the entire interface into a simulation-building environment. These changes made the exhibit more engaging while preserving its educational focus of teaching the CPU's Fetch–Decode–Execute cycle.
+
+---
 ## Development
 
 ### Website Foundation and Development
@@ -306,5 +359,7 @@ How the CPU really works: ALU, control unit, and registers explained. (2025, Dec
 Kaufmann, M., & Moore, J. S. (2025). Extended Abstract: Partial-encapsulate and Its Support for Floating-point Operations in ACL2. EPTCS 423, 2025, pp. 56-59. <https://doi.org/10.4204/EPTCS.423.6>
 
 Saheb, N. (n.d.). Fetch-Decode-Execute Cycle Explained. <https://www.scribd.com/document/875485974/The-Fetch-Decode-and-Execute-Cycle>
+
+Too Tall Productions. (2023). The Fetch Decode Execute Cycle | GCSE Computer Science | BBC Bitesize. YouTube. <https://www.youtube.com/watch?v=v97HAhwQMj8>
 
 Wojtowicz, T. (n.d.). Visualizing CPU microarchitecture. ejournals.
