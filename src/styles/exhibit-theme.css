@@ -49,10 +49,6 @@ body:has(.xt-page) {
   --soil-4: #e06a4a;
   --pixel: 16px;
 
-  /* .header lives outside .xt-page in the DOM (a cousin, not a descendant),
-     so custom properties declared on .xt-page never reach it — CSS vars
-     only inherit down through descendants. Anything the header needs has
-     to be declared here on body instead. */
   --xt-fg: #1c3a17;
   --xt-active: #ffd93f;
   --xt-line: #2c5a22;
@@ -73,7 +69,7 @@ body:has(.xt-page) {
 }
 body:has(.xt-page)::-webkit-scrollbar { display: none; }
 
-/* ===== TITLE HERO — sits flush under the header ===== */
+/* ===== TITLE HERO ===== */
 
 .xt-title-hero {
   width: calc(100% + 4rem);
@@ -83,8 +79,6 @@ body:has(.xt-page)::-webkit-scrollbar { display: none; }
 }
 .xt-title-hero img { width: 100%; height: auto; display: block; }
 .xt-page > .xt-title-hero { margin-top: 0 !important; padding-top: 0 !important; }
-
-/* ===== Structural overrides — page chrome reskinned ===== */
 
 body:has(.xt-page) .header {
   position: fixed;
@@ -100,9 +94,7 @@ body:has(.xt-page) .header {
   padding: 0 1.5rem;
 }
 
-/* Grass panel — transparent (hero art shows through) until the hero's own
-   grass strip scrolls up under the header, then fades in and locks in place.
-   Toggled by the scroll script in ExhibitTabs.astro via .xt-header--grass. */
+/* Grass panel */
 body:has(.xt-page) .header::before {
   content: "";
   position: absolute;
@@ -137,8 +129,7 @@ body:has(.xt-page) .header__titleblock {
   gap: 14px;
 }
 
-/* Secondary, static, simplified game title — sits beside the Home Base pill.
-   Same font family as the animated hero title, just plain text this time. */
+/* Secondary game title */
 body:has(.xt-page) .header__titleblock::after {
   content: "Journey of an Instruction";
   font-family: 'Baloo 2', system-ui, sans-serif;
@@ -201,11 +192,7 @@ body:has(.xt-page) .header__titleblock .button::before {
 body:has(.xt-page) .header__titleblock .button::after { content: "Home Base"; }
 
 @media (max-width: 860px) {
-  /* Icon-only Home pill; sized/positioned with !important because
-     ExhibitTabs.astro's own scoped styles (Astro auto-adds a
-     data-astro-cid attribute, which out-specifies a plain imported
-     class) were winning the vertical position on the tabs side —
-     forcing both anchors here keeps them pinned to the same math. */
+  /* Icon only home pill */
   body:has(.xt-page) .header__titleblock .button {
     width: 36px !important;
     height: 36px !important;
@@ -227,7 +214,7 @@ body:has(.xt-page) footer {
   padding: 18px 0;
 }
 
-/* ===== TOC + title-meta (cousins of .xt-page) ===== */
+/* ===== TOC ===== */
 
 body:has(.xt-page) .toc h2 {
   font-family: var(--xt-display);
@@ -287,7 +274,7 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   background: var(--xt-sky-bottom);
 }
 
-/* ===== Article + content descendants ===== */
+/* ===== Content descendants ===== */
 
 .article:has(> .xt-page) { background: transparent; border: none; box-shadow: none; padding: 0; }
 .xt-page h1, .xt-page h2, .xt-page h3 {
@@ -327,7 +314,7 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   margin: 3rem 0 2.25rem 0;
 }
 
-/* ===== Tab bar — game HUD / level-select strip ===== */
+/* ===== Tab bar ===== */
 
 .xt-tabs {
   position: fixed !important;
@@ -375,10 +362,10 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
 .xt-page [data-tab-panel] h2:first-of-type { margin-top: 0; }
 .xt-page [data-tab-panel] > .district-panel:first-child { margin-top: 0; }
 
-/* ===== Mobile menu toggle — pixel "pause menu" glyph, not a plain hamburger ===== */
+/* ===== Mobile menu toggle ===== */
 
 .xt-tabs-toggle {
-  display: none; /* shown only under the mobile breakpoint below */
+  display: none;
   width: 36px;
   height: 36px;
   border-radius: 999px;
@@ -390,8 +377,6 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   cursor: pointer;
   padding: 0;
   position: fixed;
-  /* centered on the header's vertical midline, same as the Home icon pill,
-     instead of being pinned to top: 0 */
   top: calc((var(--xt-header-h, 56px) - 36px) / 2);
   right: 1.5rem;
   z-index: 10001;
@@ -410,8 +395,6 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
 @media (max-width: 860px) {
   .xt-tabs-toggle { display: flex; }
 
-  /* Collapsed by default; opens as a stacked, game-panel dropdown anchored
-     under the header, aligned under the toggle icon on the right. */
   .xt-tabs {
     display: none;
     position: fixed;
@@ -451,7 +434,7 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   }
 }
 
-/* ===== HERO CTA — single "Start" button, game main-menu style ===== */
+/* ===== HERO CTA ===== */
 
 .xt-hero-cta {
   position: absolute;
@@ -503,9 +486,9 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   position: absolute;
   top: clamp(-60px, -9.6vw, -36px);
   right: clamp(-129px, -20.5vw, -78px);
-  width: clamp(28px, 5vw, 40px);  /* THIS is what controls its size — shrink/grow these two numbers */
-  height: auto; /* keeps its own aspect ratio, don't set this */
-  pointer-events: none; /* so it never blocks clicks on Start underneath */
+  width: clamp(28px, 5vw, 40px);
+  height: auto;
+  pointer-events: none;
   z-index: 5;
 }
 
@@ -632,4 +615,38 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   .content__block:has(.xt-page) { padding: 0 0.9rem; }
   .xt-page [data-tab-panel] { padding: 0.5rem 0.9rem 3rem 0.9rem; }
   .xt-page .district-panel { padding: 2rem 1rem 1.25rem 1rem; }
+}
+
+/* ===== Simulation District Buttons ===== */
+
+.xt-district-btn {
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.xt-district-btn:hover:not(.active-light) {
+  transform: translateY(-3px);
+  box-shadow: 5px 6px 0 var(--xt-fg);
+}
+
+.xt-district-btn:active:not(.active-light) {
+  transform: translateY(0);
+  box-shadow: 1px 1px 0 var(--xt-fg);
+}
+
+/* Active "Light Up" state */
+.xt-district-btn.active-light {
+  background: var(--xt-active) !important;
+  color: var(--xt-fg) !important;
+  box-shadow: 0 0 15px 4px rgba(255, 217, 63, 0.6), 3px 3px 0 var(--xt-fg) !important;
+  transform: scale(1.05);
+}
+
+/* Live blinking dot animation */
+@keyframes sim_live_blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }

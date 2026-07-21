@@ -1,8 +1,3 @@
-// IntroPanel.jsx
-// White "briefing" card used in the Overview tab. Plays a short
-// blur/scanline "loading" animation on mount and every time the Overview
-// tab is re-activated (listens for the "xt-tab-activated" custom event
-// dispatched by ExhibitTabs.astro), then reveals its children.
 import { useState, useEffect } from "react";
 
 export default function IntroPanel({ children }) {

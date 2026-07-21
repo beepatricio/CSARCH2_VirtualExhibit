@@ -1,5 +1,3 @@
-// TitleHero.jsx
-// Background parallax scene + pixel-font title + hero CTA buttons, all in one component.
 import React, { useEffect, useRef } from "react";
 import backgroundTrees from "../assets/BackgroundTrees.png";
 import foregroundTrees from "../assets/ForegroundTrees.png";
@@ -10,7 +8,7 @@ function scrollToId(id) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// ---- 5x7 bitmap font (only letters used by the title) ----
+// 5x7 bitmap font for letters used
 const FONT = {
   A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
   C: ["01111", "10000", "10000", "10000", "10000", "10000", "01111"],
@@ -29,7 +27,7 @@ const FONT = {
 };
 const glyphsOf = (str) => str.split("").map((ch) => FONT[ch] || FONT[" "]);
 
-// 9-wide pixel star silhouette
+// star silhouette
 const STAR = [
   "....#....",
   "...###...",
@@ -163,7 +161,7 @@ export default function TitleHero() {
             if (glyph[row][col] === "1")
               ctx.fillRect(gx + col * scale + depth * 2 - 1.5, cy + row * scale - bounce + depth * 2 - 1.5, scale + 2, scale + 2);
       }
-      // extruded colored blocks + shimmer glint
+      // shadow and shimmer
       for (let gi = 0; gi < glyphs.length; gi++) {
         const glyph = glyphs[gi];
         const gx = startX + gi * (glyphW + spacing) * scale;
@@ -221,7 +219,7 @@ export default function TitleHero() {
       const titleCy = H / 2 - 95;
       const subCy = H / 2 - 15;
 
-      // stars pop/twinkle in first, staggered left to right
+      // stars twinkle and stagger
       const starCount = 5, starGap = 70, starX0 = W / 2 - (starGap * (starCount - 1)) / 2;
       for (let i = 0; i < starCount; i++) {
         const starPop = Math.min(1, Math.max(0, (popProgress - i * 2) / 8));

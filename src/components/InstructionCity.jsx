@@ -1,10 +1,25 @@
-// InstructionCity.jsx
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
+import pcGraphic from "../assets/PCGraphic.png";
+import marGraphic from "../assets/MARGraphic.png";
+import memGraphic from "../assets/MemoGraphic.png";
+import mbrGraphic from "../assets/MDRGraphic.png";
+import irGraphic from "../assets/IRGraphic.png";
+import decGraphic from "../assets/ControlGraphic.png";
+import aluGraphic from "../assets/ALUGraphic.png";
+import axGraphic from "../assets/AXGraphic.png";
 
 const STAGE_COLOR = { fetch: "#eb4b3a", decode: "#3fae5c", execute: "#f2a52c" };
 const STAGE_LABEL = { fetch: "FETCH DISTRICT", decode: "DECODE DISTRICT", execute: "EXECUTE DISTRICT" };
-
-const BUILDING_IMAGES = { PC: null, MAR: null, MEM: null, MBR: null, IR: null, DEC: null, ALU: null, AX: null };
+const BUILDING_IMAGES = {
+  PC: pcGraphic,
+  MAR: marGraphic,
+  MEM: memGraphic,
+  MBR: mbrGraphic,
+  IR: irGraphic,
+  DEC: decGraphic,
+  ALU: aluGraphic,
+  AX: axGraphic,
+};
 
 const BW = 140, BH = 170;
 const BUILDINGS = {
@@ -41,9 +56,7 @@ const MICRO_OPS = [
   { stage: "execute", from: "ALU", to: "AX", set: { AX: "value" }, text: "The value lands in AX. Execute finishes; the cycle restarts from Fetch." },
 ];
 
-// Greedy word-wrap: splits text into lines that each fit within maxChars
-// (an approximate character budget derived from the visible on-screen width).
-// Caps at maxLines — the last kept line gets an ellipsis if content remains.
+// greedy word-wrap
 function wrapText(text, maxChars, maxLines = 3) {
   const words = text.split(" ");
   const lines = [];
@@ -85,16 +98,13 @@ const CANVAS_W = 1600, CANVAS_H = 430;
 const MIN_SCALE = 0.6, MAX_SCALE = 2.2, AUTO_SCALE = 1.3, MOBILE_AUTO_SCALE = 0.85;
 const DEFAULT_CAMERA = { x: 0, y: 0, scale: 1 };
 
-// content span, used only to size the pan "leash" — never to compute raw bounds
+// content span
 const CONTENT_LEFT = 40;              // PC's left edge
 const CONTENT_RIGHT = 1480 + BW;      // AX's right edge
 const CONTENT_W = CONTENT_RIGHT - CONTENT_LEFT;
 const CONTENT_MID = (CONTENT_LEFT + CONTENT_RIGHT) / 2;
 
-// ---------------------------------------------------------------------------
-// Shared style objects (dedupes what used to be repeated inline styles)
-// ---------------------------------------------------------------------------
-
+// Shared style objects
 const districtBtnStyle = {
   fontFamily: "'Baloo 2','Arial Black',sans-serif",
   fontSize: "clamp(9px, 1.8vw, 12px)",
@@ -135,7 +145,7 @@ const liveDotStyle = {
   animation: "sim_live_blink 1.6s ease-in-out infinite",
 };
 
-// Plain placeholder box — swap BUILDING_IMAGES[id] with a PNG path when ready.
+// Plain placeholder box
 function Building({ id, b, image, active, dimmed, value, onClick }) {
   const cx = b.x + BW / 2;
 
@@ -155,7 +165,7 @@ function Building({ id, b, image, active, dimmed, value, onClick }) {
       )}
 
       {image ? (
-        <image href={image} x={b.x} y={b.y} width={BW} height={BH} preserveAspectRatio="xMidYMax meet" />
+        <image href={image.src || image} x={b.x} y={b.y} width={BW} height={BH} preserveAspectRatio="xMidYMax meet" />
       ) : (
         <g>
           <rect x={b.x} y={b.y} width={BW} height={BH} fill="#e9e2cf" stroke="#1c3a17" strokeWidth="2" strokeDasharray="7 6" />
@@ -179,6 +189,7 @@ function Building({ id, b, image, active, dimmed, value, onClick }) {
 }
 
 export default function InstructionCity() {
+  const [activeDistrict, setActiveDistrict] = useState("fetch");
   const [step, setStep] = useState(-1);
   const [pulsePos, setPulsePos] = useState(null);
   const [values, setValues] = useState({});
@@ -190,10 +201,6 @@ export default function InstructionCity() {
   const [dragging, setDragging] = useState(false);
   const [autoMove, setAutoMove] = useState(true);
   const dragStart = useRef(null);
-
-  // Responsive: on narrow (phone-width) viewports the scene switches to a
-  // taller "slice" crop so it fills much more of the screen height instead
-  // of being letterboxed down to a thin strip by the wide 1600x430 canvas.
   const [isMobile, setIsMobile] = useState(false);
   useLayoutEffect(() => {
     const mq = window.matchMedia("(max-width: 720px)");
@@ -205,14 +212,6 @@ export default function InstructionCity() {
     };
   }, []);
 
-  // Under "slice" (mobile), the rendered element is often narrower than the
-  // 1600-unit viewBox — content is cropped left/right to fill the height.
-  // Pan-bound math and drag-distance math both need to know how much of the
-  // viewBox width is *actually visible on screen right now*, or they either
-  // clamp panning way too early (can't reach the later buildings) or convert
-  // drag pixels to the wrong number of viewBox units. visibleVBWidthRef holds
-  // that live measurement; it defaults to the full canvas width (correct for
-  // "meet", where the whole width is always visible).
   const visibleVBWidthRef = useRef(CANVAS_W);
   const [visW, setVisW] = useState(CANVAS_W);
   useLayoutEffect(() => {
@@ -223,8 +222,6 @@ export default function InstructionCity() {
       if (!rect.width || !rect.height) return;
       const scaleW = rect.width / CANVAS_W;
       const scaleH = rect.height / CANVAS_H;
-      // "meet" fits the smaller-scale dimension (letterbox); "slice" fills
-      // via the larger-scale dimension (crop). Match whichever mode is active.
       const effScale = isMobile ? Math.max(scaleW, scaleH) : Math.min(scaleW, scaleH);
       const w = rect.width / effScale;
       visibleVBWidthRef.current = w;
@@ -247,12 +244,7 @@ export default function InstructionCity() {
   function clampCamera({ x, y, scale }) {
     const s = Number.isFinite(scale) ? Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale)) : 1;
     const visW = visibleVBWidthRef.current || CANVAS_W;
-    // homeX centers content on CANVAS_W/2 — that's always the true visible
-    // center under xMid alignment, whether "meet" or "slice" is active.
     const homeX = CANVAS_W / 2 - CONTENT_MID * s;
-    // overhang (how far you can pan from home) DOES depend on how much of
-    // the viewBox is actually on screen — narrower under mobile's slice crop,
-    // so it needs a bigger overhang to let every building reach center.
     const overhang = Math.max(0, (CONTENT_W * s - visW) / 2) + 80;
     let nx = Number.isFinite(x) ? x : homeX;
     let ny = Number.isFinite(y) ? y : 0;
@@ -292,9 +284,13 @@ export default function InstructionCity() {
     const next = candidates.find(({ i }) => i > step) || candidates[0];
     playStep(next.i);
     moveCameraTo(STAGE_ZONES[BUILDINGS[id].stage].mid);
+    setActiveDistrict(BUILDINGS[id].stage);
   }
 
-  function zoomToDistrict(stage) { moveCameraTo(STAGE_ZONES[stage].mid); }
+  function zoomToDistrict(stage) {
+    moveCameraTo(STAGE_ZONES[stage].mid);
+    setActiveDistrict(stage);
+  }
 
   function zoomBy(delta) {
     setAutoMove(true);
@@ -313,16 +309,8 @@ export default function InstructionCity() {
     setValues({});
     setAutoMove(true);
     setCamera(clampCamera(DEFAULT_CAMERA));
+    setActiveDistrict("fetch");
   }
-
-  // ---------------------------------------------------------------------
-  // Drag handling via Pointer Events + pointer capture. Capture guarantees
-  // a matching pointerup/cancel always reaches this element even if the
-  // cursor leaves the window mid-drag. Global failsafe listeners below
-  // additionally force-clear `dragging` on ANY pointerup/mouseup/selection
-  // anywhere on the page, so an accidental text-selection during the drag
-  // can never leave the gesture permanently stuck.
-  // ---------------------------------------------------------------------
 
   const onPointerDown = (e) => {
     if (e.button !== 0) return; // left-click / primary touch only
@@ -340,9 +328,7 @@ export default function InstructionCity() {
     const rect = svgRef.current.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    const start = dragStart.current; // snapshot now — the ref may be nulled
-                                      // (by the global failsafe) before the
-                                      // setCamera updater below actually runs
+    const start = dragStart.current;
     const ratio = (visibleVBWidthRef.current || CANVAS_W) / rect.width;
     const dx = (e.clientX - start.x) * ratio;
     const dy = (e.clientY - start.y) * ratio;
@@ -366,9 +352,7 @@ export default function InstructionCity() {
 
   useEffect(() => () => rafRef.current && cancelAnimationFrame(rafRef.current), []);
 
-  // Failsafe: while dragging, disable text selection globally and
-  // force-clear the drag state on any pointerup/mouseup/touchend/blur/
-  // selectionchange anywhere on the page.
+  // Failsafe
   useEffect(() => {
     if (!dragging) return;
 
@@ -427,8 +411,8 @@ export default function InstructionCity() {
       <style>{`
         @keyframes sim_live_blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .xt-district-btn { transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease; }
-        .xt-district-btn:hover { transform: translateY(-3px); box-shadow: 5px 6px 0 #1c3a17; }
-        .xt-district-btn:active { transform: translateY(0); box-shadow: 1px 1px 0 #1c3a17; }
+        .xt-district-btn:hover:not(.active-light) { transform: translateY(-3px); box-shadow: 5px 6px 0 #1c3a17; }
+        .xt-district-btn:active:not(.active-light) { transform: translateY(0); box-shadow: 1px 1px 0 #1c3a17; }
       `}</style>
 
       <div
@@ -448,11 +432,28 @@ export default function InstructionCity() {
           <div style={{ fontFamily: "'Baloo 2','Arial Black',sans-serif", fontSize: "clamp(20px, 6vw, 34px)", marginTop: 2, color: "#1c3a17", fontWeight: 800, textTransform: "uppercase", lineHeight: 1.1 }}>MOV AX, [ALPHA]</div>
 
           <div style={{ display: "flex", justifyContent: "center", gap: "clamp(6px, 1.5vw, 10px)", marginTop: "clamp(10px, 2.5vw, 14px)", flexWrap: "wrap" }}>
-            {["fetch", "decode", "execute"].map((stage) => (
-              <button key={stage} onClick={() => zoomToDistrict(stage)} className="xt-district-btn" style={districtBtnStyle}>
-                {STAGE_LABEL[stage]}
-              </button>
-            ))}
+            {["fetch", "decode", "execute"].map((stage) => {
+              const isActive = activeDistrict === stage;
+              return (
+                <button
+                  key={stage}
+                  onClick={() => zoomToDistrict(stage)}
+                  className={`xt-district-btn ${isActive ? "active-light" : ""}`}
+                  style={{
+                    ...districtBtnStyle,
+                    ...(isActive
+                      ? {
+                          background: "#ffd93f",
+                          boxShadow: "0 0 15px 4px rgba(255, 217, 63, 0.6), 3px 3px 0 #1c3a17",
+                          transform: "scale(1.05)",
+                        }
+                      : {}),
+                  }}
+                >
+                  {STAGE_LABEL[stage]}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -534,10 +535,6 @@ export default function InstructionCity() {
               const captionText = activeOp ? activeOp.text : "Click a building to begin. Drag to pan, use +/− to zoom.";
               const fontSize = 15;
               const sidePadding = 28;
-              // ~0.56 * fontSize approximates average glyph width for this
-              // bold Nunito text; visW is the actual on-screen viewBox width
-              // (narrower on mobile's "slice" crop), so this reflows correctly
-              // whether the canvas is fully visible or cropped.
               const maxChars = Math.max(18, Math.floor((visW - sidePadding * 2) / (fontSize * 0.56)));
               const lines = wrapText(captionText, maxChars, 3);
               const lineHeight = 19;

@@ -1,7 +1,3 @@
-// Reveal.jsx
-// Generic scroll-into-view fade/slide wrapper. Wrap any block in this to give
-// it a soft "case file arriving" entrance animation as the visitor scrolls
-// down the page. Pure presentational, no game logic touched.
 import { useEffect, useRef, useState } from "react";
 
 export default function Reveal({ children, delay = 0 }) {
