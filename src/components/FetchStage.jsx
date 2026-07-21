@@ -66,17 +66,20 @@ function DiagramBox({ label, revealed }) {
   return (
     <div
       style={{
-        padding: "12px 10px",
-        flex: "1 1 100px",
+        padding: "clamp(8px, 2.6vw, 12px) clamp(4px, 1.8vw, 10px)",
+        flex: "1 1 clamp(56px, 16vw, 100px)",
+        minWidth: 0,
         fontFamily: "'Baloo 2', 'Arial Black', sans-serif",
-        fontSize: "13px",
+        fontSize: "clamp(10px, 3vw, 13px)",
         textAlign: "center",
-        borderRadius: "12px",
+        borderRadius: "clamp(8px, 2vw, 12px)",
         fontWeight: "900",
-        border: "3px solid #1c3a17",
+        border: "clamp(2px, 0.6vw, 3px) solid #1c3a17",
         background: revealed ? "#ffffff" : "#e9e2cf",
         color: revealed ? "#1c3a17" : "#9aa896",
         boxShadow: "3px 3px 0 #1c3a17",
+        boxSizing: "border-box",
+        whiteSpace: "nowrap",
       }}
     >
       {revealed ? label : "?"}
@@ -88,10 +91,11 @@ function DiagramArrow() {
   return (
     <div
       style={{
-        padding: "0 8px",
-        fontSize: "22px",
+        padding: "0 clamp(2px, 1.2vw, 8px)",
+        fontSize: "clamp(14px, 4vw, 22px)",
         fontweight: "900",
         color: "#1c3a17",
+        flexShrink: 0,
       }}
     >
       →
@@ -103,19 +107,21 @@ function FetchDiagram({ currentStep, locked }) {
   return (
     <div
       style={{
-        padding: "1rem",
+        padding: "clamp(0.65rem, 3.5vw, 1rem)",
         background: "#eafff1",
         border: "3px solid #1c3a17",
         borderRadius: "14px",
         boxShadow:"4px 4px 0 #1c3a17",
-        marginBottom: "1.25rem",
+        marginBottom: "clamp(0.85rem, 3vw, 1.25rem)",
+        boxSizing: "border-box",
+        overflow: "hidden",
       }}
     >
       <p
         style={{
-          margin: "0 0 12px 0",
-          fontSize: "10px",
-          letterSpacing: "0.12em",
+          margin: "0 0 10px 0",
+          fontSize: "clamp(8px, 2.4vw, 10px)",
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
           color: "#4c6b44",
           fontFamily: "'JetBrains Mono', monospace",
@@ -124,7 +130,7 @@ function FetchDiagram({ currentStep, locked }) {
       >
         Fetch Data Diagram
       </p>
-      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px" }}>
+      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "clamp(3px, 1vw, 6px)", rowGap: "10px" }}>
         {FETCH_DIAGRAM_STAGES.map((label, idx) => {
           const revealed = idx < currentStep || (idx === currentStep && locked);
           return (
@@ -143,6 +149,7 @@ export default function FetchStage({ onComplete, onWrong, onCorrect }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [locked, setLocked] = useState(false);
+  const [shakeKey, setShakeKey] = useState(0);
 
   const current = FETCH_STEPS[currentStep];
 
@@ -179,39 +186,45 @@ export default function FetchStage({ onComplete, onWrong, onCorrect }) {
         tone: "bad",
         text: "Incorrect. Think about where the instruction or address should move next.",
       });
+      setShakeKey((k) => k + 1);
       onWrong();
     }
   }
 
   return (
     <div>
-      <span style={{ color: "#ef4444", fontFamily: "'Baloo 2', 'Arial Black', sans-serif",fontSize: "12px", fontWeight: "900", letterSpacing: "0.08em", }}>
+      <span style={{ color: "#ef4444", fontFamily: "'Baloo 2', 'Arial Black', sans-serif",fontSize: "clamp(10px, 3vw, 12px)", fontWeight: "900", letterSpacing: "0.06em", }}>
         [ STAGE 01: FETCH PHASE]
       </span>
 
-      <p style={{ fontSize: "12px", color: "#4c6b44", margin: "4px 0 12px 0", fontFamily: "'JetBrains Mono', monospace", fontWeight: "700", }}>
+      <p style={{ fontSize: "clamp(10px, 2.8vw, 12px)", color: "#4c6b44", margin: "4px 0 10px 0", fontFamily: "'JetBrains Mono', monospace", fontWeight: "700", }}>
         Step {currentStep + 1} / {FETCH_STEPS.length}
       </p>
 
       <FetchDiagram currentStep={currentStep} locked={locked} />
 
       <div
+        key={shakeKey}
+        className={feedback?.tone === "bad" ? "xt-shake" : ""}
         style={{
-          padding: "1.25rem",
+          padding: "clamp(0.9rem, 4vw, 1.25rem)",
           background: "#ffffff",
           border: "3px solid #1c3a17",
           borderRadius: "14px",
           boxShadow: "4px 4px 0 #1c3a17",
           marginBottom: "1.25rem",
+          boxSizing: "border-box",
         }}
       >
         <p
           style={{
             color: "#1c3a17",
             fontFamily: "'Nunito', sans-serif",
-            fontSize: "14px",
+            fontSize: "clamp(12.5px, 3.6vw, 14px)",
             fontWeight: "800",
             marginBottom: "14px",
+            lineHeight: "1.4",
+            overflowWrap: "break-word",
           }}
         >
           {current.question}
@@ -220,8 +233,8 @@ export default function FetchStage({ onComplete, onWrong, onCorrect }) {
         <div
           style={{
             display: "grid",
-            gap: "10px",
-            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: "8px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(130px, 100%), 1fr))",
           }}
         >
           {choices.map((choice) => (
@@ -230,17 +243,22 @@ export default function FetchStage({ onComplete, onWrong, onCorrect }) {
               onClick={() => handleChoiceClick(choice)}
               disabled={locked}
               style={{
-                padding: "12px",
+                padding: "10px 12px",
                 textAlign: "left",
                 background: locked ? "#f3f3ed" : "#fffbea",
                 border: "3px solid #1c3a17",
                 borderRadius: "10px",
-                boxShadow: "3px solid #1c3a17",
+                boxShadow: "3px 3px 0 #1c3a17",
                 cursor: locked ? "not-allowed" : "pointer",
                 color: "#1c3a17",
                 fontFamily: "'Nunito', sans-serif",
-                fontSize: "13px",
+                fontSize: "clamp(11.5px, 3.2vw, 13px)",
                 fontWeight: "800",
+                lineHeight: "1.3",
+                wordBreak: "break-word",
+                overflowWrap: "break-word",
+                minWidth: 0,
+                minHeight: "44px",
               }}
             >
               {choice}
@@ -252,9 +270,9 @@ export default function FetchStage({ onComplete, onWrong, onCorrect }) {
       {feedback && (
         <div
           style={{
-            marginTop: "1.25rem",
+            marginTop: "1.1rem",
             padding: "10px 14px",
-            fontSize: "13px",
+            fontSize: "clamp(11.5px, 3.2vw, 13px)",
             borderRadius: "6px",
             border:
               feedback.tone === "good"
@@ -266,6 +284,7 @@ export default function FetchStage({ onComplete, onWrong, onCorrect }) {
                 ? "rgba(16,185,129,0.08)"
                 : "rgba(239,68,68,0.04)",
             lineHeight: "1.5",
+            boxSizing: "border-box",
           }}
         >
           {feedback.text}

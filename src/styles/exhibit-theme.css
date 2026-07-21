@@ -359,7 +359,7 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
 }
 
 .xt-page [data-tab-panel] { padding: 0.5rem 2.5rem 4rem 2.5rem; }
-.xt-page [data-tab-panel] h2:first-of-type { margin-top: 0; }
+.xt-page [data-tab-panel] > div:first-child h2:first-of-type { margin-top: 0; }
 .xt-page [data-tab-panel] > .district-panel:first-child { margin-top: 0; }
 
 /* ===== Mobile menu toggle ===== */
@@ -545,7 +545,7 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   opacity: 0.9;
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
   margin-top: -0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 /* ===== Overview preview list ===== */
@@ -687,6 +687,33 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   overflow-wrap: anywhere;
 }
  
-@media (max-width: 640px) {
-  .xt-references-list li { font-size: 13px; padding: 12px 14px 12px 18px; }
+/* ===== BE THE CPU game: mobile safety net + feedback animations ===== */
+
+@keyframes xt-shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-5px); }
+  40%, 60% { transform: translateX(5px); }
+}
+.xt-shake { animation: xt-shake 0.4s ease; }
+
+@keyframes xt-streak-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  55% { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.xt-streak-pop { display: inline-block; animation: xt-streak-pop 0.35s ease; }
+
+@keyframes xt-correct-pop {
+  0% { transform: scale(0.97); }
+  50% { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+.xt-correct-pop { animation: xt-correct-pop 0.25s ease; }
+
+/* Belt-and-braces overflow guards for the game's inline-styled grids so a
+   single long word/answer can never force horizontal scroll on narrow
+   phones, regardless of what inline styles are set per-element. */
+.xt-page .xt-cpu-game * {
+  min-width: 0;
 }

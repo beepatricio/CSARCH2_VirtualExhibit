@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import pcGraphic from "../assets/PCGraphic.png";
 import marGraphic from "../assets/MARGraphic.png";
 import memGraphic from "../assets/MemoGraphic.png";
-import mbrGraphic from "../assets/MDRGraphic.png";
+import mbrGraphic from "../assets/MBRGraphic.png";
 import irGraphic from "../assets/IRGraphic.png";
 import decGraphic from "../assets/ControlGraphic.png";
 import aluGraphic from "../assets/ALUGraphic.png";
@@ -31,7 +31,7 @@ const BUILDINGS = {
   PC:  { x: 20,   y: 150, stage: "fetch",   label: "PC" },
   MAR: { x: 250,  y: 230, stage: "fetch",   label: "MAR" },
   MEM: { x: 480,  y: 100, stage: "fetch",   label: "MEMORY" },
-  MBR: { x: 710,  y: 240, stage: "fetch",   label: "MDR" },
+  MBR: { x: 710,  y: 240, stage: "fetch",   label: "MBR" },
   IR:  { x: 1040, y: 150, stage: "decode",  label: "IR" },
   DEC: { x: 1270, y: 240, stage: "decode",  label: "CONTROL" },
   ALU: { x: 1600, y: 100, stage: "execute", label: "ALU" },

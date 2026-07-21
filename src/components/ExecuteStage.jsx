@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 
 const EXECUTE_PLANS = {
   "mov-reg-reg": {
@@ -80,22 +80,25 @@ function baseNode(token) {
 
 function DiagramBox({ label, state, revealed }) {
   const styles = {
-    active: { border: "3px solid #f2a52c", background: "fffbea", color: "#f2a52c", boxShadow: "4px 4px 0 #f2a52c" },
-    visited: { border: "3px solid #3fae5c", background: "eafff1", color: "#3fae5c", boxShadow: "3px 3px 0 %3fae5c" },
+    active: { border: "3px solid #f2a52c", background: "#fffbea", color: "#f2a52c", boxShadow: "4px 4px 0 #f2a52c" },
+    visited: { border: "3px solid #3fae5c", background: "#eafff1", color: "#3fae5c", boxShadow: "3px 3px 0 #3fae5c" },
     idle: { border: "3px solid #1c3a17", background: "#ffffff", color: "#1c3a17", boxShadow: "3px 3px 0 #1c3a17" },
   }[state];
 
   return (
     <div
       style={{
-        flex: "1 1 90px",
-        padding: "12px 10px",
+        flex: "1 1 clamp(52px, 15vw, 90px)",
+        minWidth: 0,
+        padding: "clamp(8px, 2.6vw, 12px) clamp(4px, 1.8vw, 10px)",
         textAlign: "center",
-        borderRadius: "12px",
+        borderRadius: "clamp(8px, 2vw, 12px)",
         fontFamily: "'Baloo 2', 'Arial Black', sans-serif",
-        fontSize: "13px",
+        fontSize: "clamp(10px, 3vw, 13px)",
         fontWeight: "900",
         transition: "all 0.25s ease",
+        boxSizing: "border-box",
+        overflowWrap: "break-word",
         ...styles,
       }}
     >
@@ -106,7 +109,7 @@ function DiagramBox({ label, state, revealed }) {
 
 function DiagramArrow({ active }) {
   return (
-    <div style={{ padding: "0 8px", fontSize: "22px", color: active ? "#f2a52c" : "#1c3a17", transition: "color 0.25s ease" }}>
+    <div style={{ padding: "0 clamp(2px, 1.2vw, 8px)", fontSize: "clamp(14px, 4vw, 22px)", color: active ? "#f2a52c" : "#1c3a17", transition: "color 0.25s ease", flexShrink: 0 }}>
       →
     </div>
   );
@@ -114,17 +117,17 @@ function DiagramArrow({ active }) {
 
 function ExecuteDiagram({ nodes, visited, active, locked }) {
   return (
-    <div style={{ padding: "1rem", background: "#fffbea", border: "3px solid #1c3a17", borderRadius: "14px", marginBottom: "1.25rem" }}>
-      <p style={{ margin: "0 0 12px 0", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#4c6b44", fontFamily: "monospace" }}>
+    <div style={{ padding: "clamp(0.65rem, 3.5vw, 1rem)", background: "#fffbea", border: "3px solid #1c3a17", boxShadow: "4px 4px 0 #1c3a17", borderRadius: "14px", marginBottom: "clamp(0.85rem, 3vw, 1.25rem)", boxSizing: "border-box", overflow: "hidden" }}>
+      <p style={{ margin: "0 0 10px 0", fontSize: "clamp(8px, 2.4vw, 10px)", letterSpacing: "0.1em", textTransform: "uppercase", color: "#4c6b44", fontFamily: "monospace" }}>
         Execute Data Path
       </p>
-      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "2px" }}>
+      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "2px", rowGap: "10px" }}>
         {nodes.map((node, i) => {
           const state = active.includes(node) ? "active" : visited.includes(node) ? "visited" : "idle";
           const revealed = state === "visited" || (state === "active" && locked);
           const arrowActive = active.includes(node) && active.includes(nodes[i + 1]);
           return (
-            <div key={node + i} style={{ display: "flex", alignItems: "center" }}>
+            <div key={node + i} style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
               <DiagramBox label={node} state={state} revealed={revealed} />
               {i < nodes.length - 1 && <DiagramArrow active={arrowActive} />}
             </div>
@@ -144,15 +147,20 @@ export default function ExecuteStage({ onComplete, onWrong, onCorrect }) {
   const [feedback, setFeedback] = useState(null);
   const [locked, setLocked] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [shakeKey, setShakeKey] = useState(0);
+  const [msgKey, setMsgKey] = useState(0);
 
     // tally of scoring across the whole stage
   const [actionIndex, setActionIndex] = useState(0);
+
+  const advanceTimerRef = useRef(null);
 
   useEffect(() => {
     setCurrentStep(0);
     setFeedback(null);
     setLocked(false);
     setFinished(false);
+    return () => clearTimeout(advanceTimerRef.current);
   }, [instructionIndex]);
 
   const plan = EXECUTE_PLANS[order[instructionIndex % order.length]];
@@ -208,29 +216,29 @@ export default function ExecuteStage({ onComplete, onWrong, onCorrect }) {
 
   return (
     <div>
-      <span style={{  color: "#f2a52c", fontFamily: "'Baloo 2', 'Arial Black', sans-serif", fontSize: "12px", fontWeight: "900" }}>[ STAGE 03: EXECUTE PHASE ]</span>
+      <span style={{  color: "#f2a52c", fontFamily: "'Baloo 2', 'Arial Black', sans-serif", fontSize: "clamp(10px, 3vw, 12px)", fontWeight: "900" }}>[ STAGE 03: EXECUTE PHASE ]</span>
 
-      <p style={{ fontSize: "12px", color: "#4c6b44", margin: "4px 0 4px 0", fontFamily: "monospace", fontWeight:"700" ,}}>
+      <p style={{ fontSize: "clamp(11px, 3vw, 12px)", color: "#4c6b44", margin: "4px 0 4px 0", fontFamily: "monospace", fontWeight:"700", lineHeight: "1.4" }}>
         Executing <strong style={{ color: "#1c3a17" }}>{plan.display}</strong> · Micro-op {Math.min(currentStep + 1, plan.steps.length)} / {plan.steps.length}
       </p>
-      <p style={{ fontSize: "11px", color: "#4c6b44", margin: "0 0 12px 0", fontFamily: "monospace" }}>
+      <p style={{ fontSize: "clamp(9.5px, 2.6vw, 11px)", color: "#4c6b44", margin: "0 0 10px 0", fontFamily: "monospace" }}>
         Instruction {instructionIndex + 1} / {order.length}
       </p>
 
     <ExecuteDiagram nodes={plan.nodes} visited={finished ? plan.nodes : visitedNodes} active={activeNodes} locked={locked} />
 
       {!finished ? (
-        <div style={{ padding: "1.25rem", background: "#ffffff", border: "3px solid #1c3a17", borderRadius: "14px", marginBottom: "14px" }}>
-          <p style={{ color: "#1c3a17", fontFamily: "sans-serif", fontSize: "14px", fontWeight: "800", marginBottom: "14px" }}>
+        <div style={{ padding: "clamp(0.9rem, 4vw, 1.25rem)", background: "#ffffff", border: "3px solid #1c3a17", borderRadius: "14px", marginBottom: "14px", boxSizing: "border-box" }}>
+          <p style={{ color: "#1c3a17", fontFamily: "sans-serif", fontSize: "clamp(12.5px, 3.6vw, 14px)", fontWeight: "800", marginBottom: "14px", lineHeight: "1.4" }}>
             {current.question}
           </p>
-          <div style={{ display: "grid", gap: "10px", gridTemplateColumns: "repeat(2, 1fr)" }}>
+          <div style={{ display: "grid", gap: "8px", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))" }}>
             {choices.map((choice) => (
               <button
                 key={choice}
                 onClick={() => handleChoiceClick(choice)}
                 disabled={locked}
-                style={{ padding: "12px", textAlign: "left", background: locked ? "#f3f3ed" : "#fffbea", border: "3px solid #1c3a17", borderRadius: "10px", cursor: locked ? "not-allowed" : "pointer", color: "#1c3a17", fontFamily: "sans-serif", fontSize: "13px", fontWeight: "800" }}
+                style={{ padding: "10px 12px", textAlign: "left", background: locked ? "#f3f3ed" : "#fffbea", border: "3px solid #1c3a17", borderRadius: "10px", cursor: locked ? "not-allowed" : "pointer", color: "#1c3a17", fontFamily: "sans-serif", fontSize: "clamp(11.5px, 3.2vw, 13px)", fontWeight: "800", lineHeight: "1.3", wordBreak: "break-word" }}
               >
                 {choice}
               </button>
@@ -238,22 +246,23 @@ export default function ExecuteStage({ onComplete, onWrong, onCorrect }) {
           </div>
         </div>
       ) : (
-        <div style={{ padding: "1.25rem", background: "#eafff1", border: "3px solid #3fae5c", borderRadius: "14px", marginBottom: "1.25rem", textAlign: "center" }}>
-          <span style={{ color: "#3fae5c", fontSize: "11px", fontWeight: "bold", letterSpacing: "0.1em" }}>EXECUTION COMPLETE</span>
+        <div style={{ padding: "clamp(0.9rem, 4vw, 1.25rem)", background: "#eafff1", border: "3px solid #3fae5c", borderRadius: "14px", marginBottom: "1.25rem", textAlign: "center", boxSizing: "border-box" }}>
+          <span style={{ color: "#3fae5c", fontSize: "clamp(10px, 2.8vw, 11px)", fontWeight: "bold", letterSpacing: "0.08em" }}>EXECUTION COMPLETE</span>
         </div>
       )}
 
       {feedback && (
         <div
           style={{
-            marginTop: "1.25rem",
+            marginTop: "1.1rem",
             padding: "10px 14px",
-            fontSize: "13px",
+            fontSize: "clamp(11.5px, 3.2vw, 13px)",
             borderRadius: "6px",
             border: feedback.tone === "good" ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(239,68,68,0.3)",
             color: feedback.tone === "good" ? "#34d399" : "#f87171",
             background: feedback.tone === "good" ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.04)",
             lineHeight: "1.5",
+            boxSizing: "border-box",
           }}
         >
           {feedback.text}

@@ -1,4 +1,3 @@
-// chunky, rounded game HUD chips
 import { useState } from "react";
 
 export default function ComponentPanel({ items, accent = "#eb4b3a" }) {

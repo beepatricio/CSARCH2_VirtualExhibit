@@ -1,9 +1,3 @@
-// CycleLoop.jsx
-// A self-animating overview of the Fetch-Decode-Execute cycle, placed above
-// the three detailed stage sections. Auto-highlights each stage in turn so
-// the visitor sees the loop "running" before reading the specifics. Colors
-// match the stage colors already used inside FetchStage/DecodeStage/
-// ExecuteStage, so it reads as part of the same system.
 import { useEffect, useState } from "react";
 
 const STAGES = [
