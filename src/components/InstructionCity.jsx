@@ -155,6 +155,7 @@ function Building({ id, b, image, active, dimmed, value, onClick }) {
 
   return (
     <g
+      data-city-building="true"
       opacity={dimmed ? 0.32 : 1}
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => { e.stopPropagation(); onClick(id); }}
@@ -352,8 +353,8 @@ export default function InstructionCity() {
   };
 
   const onPointerDown = (e) => {
-    if (e.button !== 0) return;
-    e.preventDefault();
+    if (e.button !== 0) return; // left-click / primary touch only
+    e.preventDefault(); // stop the browser from starting a text-selection drag
     startDragAt(e.clientX, e.clientY);
     if (e.currentTarget.setPointerCapture) {
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
@@ -374,23 +375,40 @@ export default function InstructionCity() {
   };
 
   useEffect(() => () => rafRef.current && cancelAnimationFrame(rafRef.current), []);
+
+  const touchStartRef = useRef(null);
+  const TAP_MOVE_THRESHOLD = 6; // px
+
   useEffect(() => {
     const el = svgRef.current;
     if (!el) return;
 
     const onTouchStart = (e) => {
       if (e.touches.length !== 1) return;
-      e.preventDefault();
       const t = e.touches[0];
-      startDragAt(t.clientX, t.clientY);
+      touchStartRef.current = { x: t.clientX, y: t.clientY, camX: camera.x, camY: camera.y, moved: false };
     };
+
     const onTouchMove = (e) => {
-      if (!dragStart.current || e.touches.length !== 1) return;
-      e.preventDefault();
+      const start = touchStartRef.current;
+      if (!start || e.touches.length !== 1) return;
       const t = e.touches[0];
+
+      if (!start.moved) {
+        const dx = t.clientX - start.x, dy = t.clientY - start.y;
+        if (Math.hypot(dx, dy) < TAP_MOVE_THRESHOLD) return; // still just a tap so far
+        start.moved = true;
+        setAutoMove(false);
+        setDragging(true);
+        dragStart.current = { x: start.x, y: start.y, camX: start.camX, camY: start.camY };
+      }
+
+      e.preventDefault();
       moveDragTo(t.clientX, t.clientY);
     };
+
     const onTouchEnd = () => {
+      touchStartRef.current = null;
       setDragging(false);
       dragStart.current = null;
     };
