@@ -101,6 +101,10 @@ Compared to our initial proposal, the final project contains several improvement
 
 ---
 
+## AI Usage Statement
+
+This project was developed by the group members. AI tools were used only to assist with brainstorming, learning unfamiliar concepts, and discussing implementation approaches. Code, design decisions, modifications, testing, debugging, and final implementation were completed and verified by the group.
+
 ## AI Prompts Used
 
 **1. Theme Consultation**
