@@ -21,19 +21,24 @@ const BUILDING_IMAGES = {
   AX: axGraphic,
 };
 
-const BW = 140, BH = 170;
+const BW = 300, BH = 355;
+// Most building art has transparent padding above its actual roofline/base, so
+// the visual "ground" sits above the raw box bottom. This factor controls
+// where the shadow + label sit relative to the box, pulled up to hug the art.
+const BASE_FACTOR = 0.8;
+
 const BUILDINGS = {
-  PC:  { x: 40,   y: 70,  stage: "fetch",   label: "PC" },
-  MAR: { x: 230,  y: 110, stage: "fetch",   label: "MAR" },
-  MEM: { x: 420,  y: 55,  stage: "fetch",   label: "MEMORY" },
-  MBR: { x: 610,  y: 115, stage: "fetch",   label: "MDR" },
-  IR:  { x: 860,  y: 70,  stage: "decode",  label: "IR" },
-  DEC: { x: 1060, y: 115, stage: "decode",  label: "CONTROL" },
-  ALU: { x: 1300, y: 55,  stage: "execute", label: "ALU" },
-  AX:  { x: 1480, y: 115, stage: "execute", label: "AX" },
+  PC:  { x: 20,   y: 150, stage: "fetch",   label: "PC" },
+  MAR: { x: 250,  y: 230, stage: "fetch",   label: "MAR" },
+  MEM: { x: 480,  y: 100, stage: "fetch",   label: "MEMORY" },
+  MBR: { x: 710,  y: 240, stage: "fetch",   label: "MDR" },
+  IR:  { x: 1040, y: 150, stage: "decode",  label: "IR" },
+  DEC: { x: 1270, y: 240, stage: "decode",  label: "CONTROL" },
+  ALU: { x: 1600, y: 100, stage: "execute", label: "ALU" },
+  AX:  { x: 1830, y: 240, stage: "execute", label: "AX" },
 };
 
-const ZONE_WIDTH = 760;
+const ZONE_WIDTH = 1050;
 function computeZones() {
   const zones = {};
   for (const stage of ["fetch", "decode", "execute"]) {
@@ -94,13 +99,13 @@ function curvedRoadPath(points) {
   return d;
 }
 
-const CANVAS_W = 1600, CANVAS_H = 430;
-const MIN_SCALE = 0.6, MAX_SCALE = 2.2, AUTO_SCALE = 1.3, MOBILE_AUTO_SCALE = 0.85;
+const CANVAS_W = 2170, CANVAS_H = 720;
+const MIN_SCALE = 0.6, MAX_SCALE = 2.2, AUTO_SCALE = 1.15, MOBILE_AUTO_SCALE = 0.6;
 const DEFAULT_CAMERA = { x: 0, y: 0, scale: 1 };
 
 // content span
-const CONTENT_LEFT = 40;              // PC's left edge
-const CONTENT_RIGHT = 1480 + BW;      // AX's right edge
+const CONTENT_LEFT = 20;              // PC's left edge
+const CONTENT_RIGHT = 1830 + BW;      // AX's right edge
 const CONTENT_W = CONTENT_RIGHT - CONTENT_LEFT;
 const CONTENT_MID = (CONTENT_LEFT + CONTENT_RIGHT) / 2;
 
@@ -148,6 +153,8 @@ const liveDotStyle = {
 // Plain placeholder box
 function Building({ id, b, image, active, dimmed, value, onClick }) {
   const cx = b.x + BW / 2;
+  const clipId = `bclip-${id}`;
+  const baseY = b.y + BH * BASE_FACTOR; // visual ground line under the art
 
   return (
     <g
@@ -156,7 +163,8 @@ function Building({ id, b, image, active, dimmed, value, onClick }) {
       onClick={(e) => { e.stopPropagation(); onClick(id); }}
       style={{ cursor: "pointer", transition: "opacity 0.35s ease" }}
     >
-      <ellipse cx={cx} cy={b.y + BH + 12} rx={BW * 0.42} ry={10} fill="#000" opacity="0.15" />
+      {/* Shadow sized to the building footprint, sitting flush against its base */}
+      <ellipse cx={cx} cy={baseY + 4} rx={BW * 0.44} ry={BH * 0.045} fill="#000" opacity="0.22" />
 
       {active && (
         <ellipse cx={cx} cy={b.y + BH / 2} rx={BW * 0.9} ry={BH * 0.75} fill="#ffd93f" opacity="0.22">
@@ -165,7 +173,16 @@ function Building({ id, b, image, active, dimmed, value, onClick }) {
       )}
 
       {image ? (
-        <image href={image.src || image} x={b.x} y={b.y} width={BW} height={BH} preserveAspectRatio="xMidYMax meet" />
+        <>
+          <defs>
+            <clipPath id={clipId}>
+              <rect x={b.x} y={b.y} width={BW} height={BH} />
+            </clipPath>
+          </defs>
+          <g clipPath={`url(#${clipId})`}>
+            <image href={image.src || image} x={b.x} y={b.y} width={BW} height={BH} preserveAspectRatio="xMidYMax slice" />
+          </g>
+        </>
       ) : (
         <g>
           <rect x={b.x} y={b.y} width={BW} height={BH} fill="#e9e2cf" stroke="#1c3a17" strokeWidth="2" strokeDasharray="7 6" />
@@ -175,13 +192,13 @@ function Building({ id, b, image, active, dimmed, value, onClick }) {
         </g>
       )}
 
-      <text x={cx} y={b.y + BH + 32} textAnchor="middle" fontFamily="'Baloo 2','Arial Black',sans-serif" fontSize="19" fontWeight="800" fill="#ffffff" stroke="#1c3a17" strokeWidth="4" paintOrder="stroke">
+      <text x={cx} y={baseY + 34} textAnchor="middle" fontFamily="'Baloo 2','Arial Black',sans-serif" fontSize="24" fontWeight="800" fill="#ffffff" stroke="#1c3a17" strokeWidth="4" paintOrder="stroke">
         {b.label}
       </text>
       {value && (
-        <g transform={`translate(${cx - 46} ${b.y - 26})`}>
-          <rect width="92" height="28" rx="14" fill="#1c3a17" />
-          <text x="46" y="19" textAnchor="middle" fontFamily="'JetBrains Mono',monospace" fontSize="12" fontWeight="700" fill="#ffd93f">{value}</text>
+        <g transform={`translate(${cx - 68} ${b.y + BH * 0.28 - 38})`}>
+          <rect width="136" height="40" rx="20" fill="#1c3a17" />
+          <text x="68" y="26" textAnchor="middle" fontFamily="'JetBrains Mono',monospace" fontSize="17" fontWeight="700" fill="#ffd93f">{value}</text>
         </g>
       )}
     </g>
@@ -496,11 +513,11 @@ export default function InstructionCity() {
 
             <rect x="0" y="0" width={CANVAS_W} height={CANVAS_H * 0.32} fill="url(#ic-sky)" />
             <g opacity="0.7" fill="#ffffff">
-              <ellipse cx="220" cy="60" rx="60" ry="18" />
-              <ellipse cx="270" cy="52" rx="40" ry="14" />
-              <ellipse cx="980" cy="45" rx="70" ry="20" />
-              <ellipse cx="1040" cy="55" rx="42" ry="15" />
-              <ellipse cx="1380" cy="70" rx="55" ry="16" />
+              <ellipse cx="335" cy="85" rx="85" ry="24" />
+              <ellipse cx="410" cy="74" rx="56" ry="19" />
+              <ellipse cx="1490" cy="62" rx="98" ry="27" />
+              <ellipse cx="1580" cy="76" rx="58" ry="20" />
+              <ellipse cx="2100" cy="98" rx="78" ry="22" />
             </g>
 
             <g style={{ transition: autoMove ? "transform 0.9s cubic-bezier(.65,0,.2,1)" : "none" }} transform={camTransform}>
@@ -533,11 +550,11 @@ export default function InstructionCity() {
 
             {(() => {
               const captionText = activeOp ? activeOp.text : "Click a building to begin. Drag to pan, use +/− to zoom.";
-              const fontSize = 15;
+              const fontSize = 21;
               const sidePadding = 28;
               const maxChars = Math.max(18, Math.floor((visW - sidePadding * 2) / (fontSize * 0.56)));
               const lines = wrapText(captionText, maxChars, 3);
-              const lineHeight = 19;
+              const lineHeight = 27;
               const barPadding = 12;
               const barHeight = barPadding * 2 + lines.length * lineHeight;
               const barY = CANVAS_H - barHeight;
