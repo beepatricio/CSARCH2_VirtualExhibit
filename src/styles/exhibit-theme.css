@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800&family=Press+Start+2P&display=swap');
 
 /* Scoping: mdx wraps content in .xt-page. .content/.content__block are
    ANCESTORS (use :has()). .toc/.content__titlemeta/.header/footer are
@@ -27,12 +27,14 @@
   --xt-wall: #f4ecd8;
   --xt-display: "Baloo 2", "Arial Black", "Helvetica Neue", sans-serif;
   --xt-mono: "JetBrains Mono", "Courier New", monospace;
+  --xt-pixel-font: "Press Start 2P", var(--xt-display);
   --xt-outline: 3px;
   --xt-header-h: 70px;
 }
 
 @media (max-width: 860px) {
   .xt-page { --xt-header-h: 56px; }
+  body:has(.xt-page) { --xt-header-h: 56px; }
 }
 
 html { overflow-x: hidden; }
@@ -46,6 +48,19 @@ body:has(.xt-page) {
   --soil-3: #8f331f;
   --soil-4: #e06a4a;
   --pixel: 16px;
+
+  /* .header lives outside .xt-page in the DOM (a cousin, not a descendant),
+     so custom properties declared on .xt-page never reach it — CSS vars
+     only inherit down through descendants. Anything the header needs has
+     to be declared here on body instead. */
+  --xt-fg: #1c3a17;
+  --xt-active: #ffd93f;
+  --xt-line: #2c5a22;
+  --xt-ground: #6cc24a;
+  --xt-grass-header-bg: url('/CSARCH2_VirtualExhibit/images/grass-tile.png');
+  --xt-grass-header-size: auto 100%;
+  --xt-grass-header-pos: center bottom;
+
   background-color: var(--soil-1) !important;
   background-image:
     repeating-linear-gradient(90deg, var(--soil-2) 0 var(--pixel), transparent 0 calc(var(--pixel) * 2)),
@@ -85,6 +100,30 @@ body:has(.xt-page) .header {
   padding: 0 1.5rem;
 }
 
+/* Grass panel — transparent (hero art shows through) until the hero's own
+   grass strip scrolls up under the header, then fades in and locks in place.
+   Toggled by the scroll script in ExhibitTabs.astro via .xt-header--grass. */
+body:has(.xt-page) .header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: transparent;
+  background-image: var(--xt-grass-header-bg);
+  background-repeat: repeat-x;
+  background-size: var(--xt-grass-header-size);
+  background-position: var(--xt-grass-header-pos);
+  image-rendering: pixelated;
+  border-bottom: var(--xt-outline) solid var(--xt-line);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+body:has(.xt-page) .header.xt-header--grass::before {
+  opacity: 1;
+}
+
 body:has(.xt-page) .header__titleblock strong,
 body:has(.xt-page) .header__subtitle { display: none; }
 
@@ -93,6 +132,25 @@ body:has(.xt-page) .header__titleblock {
   border: none;
   box-shadow: none;
   padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Secondary, static, simplified game title — sits beside the Home Base pill.
+   Same font family as the animated hero title, just plain text this time. */
+body:has(.xt-page) .header__titleblock::after {
+  content: "Journey of an Instruction";
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(13px, 1.8vw, 17px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--xt-active);
+  -webkit-text-stroke: 1.5px var(--xt-fg);
+  paint-order: stroke fill;
+  text-shadow: 2px 2px 0 var(--xt-fg);
+  white-space: nowrap;
 }
 
 body:has(.xt-page) .header__titleblock .button {
@@ -156,11 +214,13 @@ body:has(.xt-page) .header__titleblock .button::after { content: "Home Base"; }
     margin: 0 !important;
   }
   body:has(.xt-page) .header__titleblock .button::after { content: ""; }
+  body:has(.xt-page) .header__titleblock::after { display: none; }
 }
 
 body:has(.xt-page) footer {
-  background: var(--xt-fg);
-  color: #eafff1;
+  background: transparent;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
   border-top: none;
   font-family: var(--xt-mono);
   text-align: center;
@@ -301,8 +361,6 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
 
-.xt-tabs__btn:nth-child(3) { display: none; } /* "Try It Yourself" — kept in the DOM (Start's click target), hidden from view */
-
 .xt-tabs__btn:hover { border-color: var(--xt-active); transform: translateY(-2px); }
 
 .xt-tabs__btn[aria-selected="true"] {
@@ -313,35 +371,83 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   box-shadow: 0 3px 0 rgba(0,0,0,0.25);
 }
 
-.xt-page [data-tab-panel] { animation: xt-fade-in 0.18s ease; padding: 0.5rem 2.5rem 4rem 2.5rem; }
+.xt-page [data-tab-panel] { padding: 0.5rem 2.5rem 4rem 2.5rem; }
 .xt-page [data-tab-panel] h2:first-of-type { margin-top: 0; }
 .xt-page [data-tab-panel] > .district-panel:first-child { margin-top: 0; }
 
-@keyframes xt-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ===== Mobile menu toggle — pixel "pause menu" glyph, not a plain hamburger ===== */
+
+.xt-tabs-toggle {
+  display: none; /* shown only under the mobile breakpoint below */
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28, 58, 23, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  padding: 0;
+  position: fixed;
+  /* centered on the header's vertical midline, same as the Home icon pill,
+     instead of being pinned to top: 0 */
+  top: calc((var(--xt-header-h, 56px) - 36px) / 2);
+  right: 1.5rem;
+  z-index: 10001;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.xt-tabs-toggle:hover { border-color: var(--xt-active); transform: translateY(-2px); }
+.xt-tabs-toggle[aria-expanded="true"] { background: var(--xt-fg); border-color: var(--xt-active); }
+
+.xt-tabs-toggle__star {
+  width: 22px;
+  height: 22px;
+  image-rendering: pixelated;
+  display: block;
 }
 
 @media (max-width: 860px) {
-  /* Pinned top-right still, just squeezed into a scrollable strip capped
-     to the space right of Home's icon pill. */
+  .xt-tabs-toggle { display: flex; }
+
+  /* Collapsed by default; opens as a stacked, game-panel dropdown anchored
+     under the header, aligned under the toggle icon on the right. */
   .xt-tabs {
-    max-width: calc(100% - 58px);
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    justify-content: flex-end;
+    display: none;
+    position: fixed;
+    top: calc(var(--xt-header-h, 56px) + 8px);
+    right: 1.5rem;
+    left: auto;
+    width: auto;
+    min-width: 190px;
+    max-width: calc(100% - 2rem);
+    height: auto !important;
+    flex-direction: column;
+    align-items: stretch !important;
     gap: 6px;
+    background: #ffffff;
+    border: 3px solid var(--xt-fg);
+    border-radius: 14px;
+    box-shadow: 5px 5px 0 var(--xt-fg);
+    padding: 10px !important;
   }
-  .xt-tabs::-webkit-scrollbar { display: none; }
+  .xt-tabs.xt-tabs--open { display: flex; }
+
   .xt-tabs__btn {
-    flex: 0 0 auto;
-    height: 36px !important;
-    padding: 0 14px !important;
-    font-size: 10.5px;
-    display: flex;
-    align-items: center;
+    color: var(--xt-fg);
+    background: var(--xt-sky-bottom);
+    border: 2px solid var(--xt-panel-edge);
+    width: 100%;
+    height: auto !important;
+    padding: 9px 14px !important;
+    font-size: 11.5px;
+    text-align: left;
+    justify-content: flex-start;
+  }
+  .xt-tabs__btn:hover { border-color: var(--xt-fg); }
+  .xt-tabs__btn[aria-selected="true"] {
+    background: var(--xt-active);
+    border-color: var(--xt-fg);
   }
 }
 
@@ -350,19 +456,25 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
 .xt-hero-cta {
   position: absolute;
   left: 50%;
-  bottom: 34%;
+  bottom: 28%;
   transform: translateX(-50%);
   z-index: 20;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(8px, 1.4vw, 12px);
+  gap: clamp(6px, 1.6vw, 16px);
   pointer-events: auto;
+  width: max-content;
+  max-width: 90%;
+}
+
+@media (max-width: 640px) {
+  .xt-hero-cta { bottom: 24%; gap: 6px; }
 }
 
 .xt-btn-start {
   font-family: var(--xt-display);
-  font-size: clamp(16px, 2.6vw, 20px);
+  font-size: clamp(11px, 4vw, 20px);
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -370,10 +482,10 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   background: var(--xt-active);
   border: 3px solid var(--xt-fg);
   border-radius: 999px;
-  padding: clamp(10px, 1.8vw, 14px) clamp(26px, 5.5vw, 40px);
+  padding: clamp(6px, 2.6vw, 14px) clamp(16px, 7vw, 40px);
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: clamp(5px, 1.5vw, 10px);
   cursor: pointer;
   box-shadow: 0 5px 0 var(--xt-fg), 0 10px 22px rgba(0,0,0,0.35);
   animation: xt-cta-pulse 2.2s ease-in-out infinite;
@@ -413,6 +525,25 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
   0%, 100% { box-shadow: 0 5px 0 var(--xt-fg), 0 10px 22px rgba(0,0,0,0.35), 0 0 0 0 rgba(255,217,63,0.55); }
   50% { box-shadow: 0 5px 0 var(--xt-fg), 0 10px 22px rgba(0,0,0,0.35), 0 0 0 10px rgba(255,217,63,0); }
 }
+
+.xt-btn-tiy {
+  font-family: var(--xt-display);
+  font-size: clamp(9px, 3vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: rgba(28, 58, 23, 0.55);
+  border: 3px solid var(--xt-line);
+  border-radius: 999px;
+  padding: clamp(5px, 2vw, 11px) clamp(12px, 5vw, 26px);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--xt-line);
+  transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+
+.xt-btn-tiy:hover { background: var(--xt-fg); transform: translateY(-2px); box-shadow: 0 5px 0 var(--xt-line); }
+.xt-btn-tiy:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--xt-line); }
 
 .xt-page [data-tab-panel="simulation"] { padding: 0; }
 .xt-page [data-tab-panel="simulation"] #simulation {
@@ -497,3 +628,8 @@ body:has(.xt-page .xt-title-hero) .content__titlemeta { display: none; }
 }
 
 .xt-overview-followup strong { color: var(--xt-fg); }
+@media (max-width: 640px) {
+  .content__block:has(.xt-page) { padding: 0 0.9rem; }
+  .xt-page [data-tab-panel] { padding: 0.5rem 0.9rem 3rem 0.9rem; }
+  .xt-page .district-panel { padding: 2rem 1rem 1.25rem 1rem; }
+}

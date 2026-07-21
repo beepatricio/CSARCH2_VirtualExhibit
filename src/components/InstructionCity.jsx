@@ -1,5 +1,5 @@
 // InstructionCity.jsx
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 
 const STAGE_COLOR = { fetch: "#eb4b3a", decode: "#3fae5c", execute: "#f2a52c" };
 const STAGE_LABEL = { fetch: "FETCH DISTRICT", decode: "DECODE DISTRICT", execute: "EXECUTE DISTRICT" };
@@ -41,6 +41,34 @@ const MICRO_OPS = [
   { stage: "execute", from: "ALU", to: "AX", set: { AX: "value" }, text: "The value lands in AX. Execute finishes; the cycle restarts from Fetch." },
 ];
 
+// Greedy word-wrap: splits text into lines that each fit within maxChars
+// (an approximate character budget derived from the visible on-screen width).
+// Caps at maxLines — the last kept line gets an ellipsis if content remains.
+function wrapText(text, maxChars, maxLines = 3) {
+  const words = text.split(" ");
+  const lines = [];
+  let current = "";
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length > maxChars && current) {
+      lines.push(current);
+      current = word;
+      if (lines.length === maxLines) break;
+    } else {
+      current = candidate;
+    }
+  }
+  if (lines.length < maxLines && current) lines.push(current);
+  if (lines.length === maxLines) {
+    const consumedWords = lines.join(" ").split(" ").length;
+    if (consumedWords < words.length) {
+      const last = lines[lines.length - 1];
+      lines[lines.length - 1] = last.length > 3 ? last.slice(0, -1).replace(/\W+$/, "") + "…" : last + "…";
+    }
+  }
+  return lines;
+}
+
 function curvedRoadPath(points) {
   if (points.length < 2) return "";
   let d = `M${points[0].x},${points[0].y}`;
@@ -54,11 +82,14 @@ function curvedRoadPath(points) {
 }
 
 const CANVAS_W = 1600, CANVAS_H = 430;
-const MIN_SCALE = 0.6, MAX_SCALE = 2.2, AUTO_SCALE = 1.3;
+const MIN_SCALE = 0.6, MAX_SCALE = 2.2, AUTO_SCALE = 1.3, MOBILE_AUTO_SCALE = 0.85;
 const DEFAULT_CAMERA = { x: 0, y: 0, scale: 1 };
 
 // content span, used only to size the pan "leash" — never to compute raw bounds
-const CONTENT_W = 1480 + BW - 0; // right edge of AX minus left edge of PC
+const CONTENT_LEFT = 40;              // PC's left edge
+const CONTENT_RIGHT = 1480 + BW;      // AX's right edge
+const CONTENT_W = CONTENT_RIGHT - CONTENT_LEFT;
+const CONTENT_MID = (CONTENT_LEFT + CONTENT_RIGHT) / 2;
 
 // ---------------------------------------------------------------------------
 // Shared style objects (dedupes what used to be repeated inline styles)
@@ -160,6 +191,51 @@ export default function InstructionCity() {
   const [autoMove, setAutoMove] = useState(true);
   const dragStart = useRef(null);
 
+  // Responsive: on narrow (phone-width) viewports the scene switches to a
+  // taller "slice" crop so it fills much more of the screen height instead
+  // of being letterboxed down to a thin strip by the wide 1600x430 canvas.
+  const [isMobile, setIsMobile] = useState(false);
+  useLayoutEffect(() => {
+    const mq = window.matchMedia("(max-width: 720px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener ? mq.addEventListener("change", update) : mq.addListener(update);
+    return () => {
+      mq.removeEventListener ? mq.removeEventListener("change", update) : mq.removeListener(update);
+    };
+  }, []);
+
+  // Under "slice" (mobile), the rendered element is often narrower than the
+  // 1600-unit viewBox — content is cropped left/right to fill the height.
+  // Pan-bound math and drag-distance math both need to know how much of the
+  // viewBox width is *actually visible on screen right now*, or they either
+  // clamp panning way too early (can't reach the later buildings) or convert
+  // drag pixels to the wrong number of viewBox units. visibleVBWidthRef holds
+  // that live measurement; it defaults to the full canvas width (correct for
+  // "meet", where the whole width is always visible).
+  const visibleVBWidthRef = useRef(CANVAS_W);
+  const [visW, setVisW] = useState(CANVAS_W);
+  useLayoutEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const measure = () => {
+      const rect = el.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const scaleW = rect.width / CANVAS_W;
+      const scaleH = rect.height / CANVAS_H;
+      // "meet" fits the smaller-scale dimension (letterbox); "slice" fills
+      // via the larger-scale dimension (crop). Match whichever mode is active.
+      const effScale = isMobile ? Math.max(scaleW, scaleH) : Math.min(scaleW, scaleH);
+      const w = rect.width / effScale;
+      visibleVBWidthRef.current = w;
+      setVisW(w);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [isMobile]);
+
   const activeOp = step >= 0 ? MICRO_OPS[step] : null;
 
   function computeValues(upTo) {
@@ -170,8 +246,14 @@ export default function InstructionCity() {
 
   function clampCamera({ x, y, scale }) {
     const s = Number.isFinite(scale) ? Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale)) : 1;
-    const homeX = (CANVAS_W - CONTENT_W * s) / 2;
-    const overhang = Math.max(0, (CONTENT_W * s - CANVAS_W) / 2) + 80;
+    const visW = visibleVBWidthRef.current || CANVAS_W;
+    // homeX centers content on CANVAS_W/2 — that's always the true visible
+    // center under xMid alignment, whether "meet" or "slice" is active.
+    const homeX = CANVAS_W / 2 - CONTENT_MID * s;
+    // overhang (how far you can pan from home) DOES depend on how much of
+    // the viewBox is actually on screen — narrower under mobile's slice crop,
+    // so it needs a bigger overhang to let every building reach center.
+    const overhang = Math.max(0, (CONTENT_W * s - visW) / 2) + 80;
     let nx = Number.isFinite(x) ? x : homeX;
     let ny = Number.isFinite(y) ? y : 0;
     nx = Math.min(homeX + overhang, Math.max(homeX - overhang, nx));
@@ -181,9 +263,10 @@ export default function InstructionCity() {
     return { x: nx, y: ny, scale: s };
   }
 
-  function moveCameraTo(midX, scale = AUTO_SCALE) {
+  function moveCameraTo(midX, scale) {
+    const targetScale = scale != null ? scale : (isMobile ? MOBILE_AUTO_SCALE : AUTO_SCALE);
     setAutoMove(true);
-    setCamera(clampCamera({ x: CANVAS_W / 2 - midX * scale, y: 0, scale }));
+    setCamera(clampCamera({ x: CANVAS_W / 2 - midX * targetScale, y: 0, scale: targetScale }));
   }
 
   function playStep(idx) {
@@ -257,14 +340,17 @@ export default function InstructionCity() {
     const rect = svgRef.current.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    const ratio = CANVAS_W / rect.width;
-    const dx = (e.clientX - dragStart.current.x) * ratio;
-    const dy = (e.clientY - dragStart.current.y) * ratio;
+    const start = dragStart.current; // snapshot now — the ref may be nulled
+                                      // (by the global failsafe) before the
+                                      // setCamera updater below actually runs
+    const ratio = (visibleVBWidthRef.current || CANVAS_W) / rect.width;
+    const dx = (e.clientX - start.x) * ratio;
+    const dy = (e.clientY - start.y) * ratio;
 
     setCamera((c) =>
       clampCamera({
-        x: dragStart.current.camX + dx,
-        y: dragStart.current.camY + dy,
+        x: start.camX + dx,
+        y: start.camY + dy,
         scale: c.scale,
       })
     );
@@ -357,11 +443,11 @@ export default function InstructionCity() {
           overflow: "hidden",
         }}
       >
-        <div style={{ textAlign: "center", padding: "34px 20px 10px", background: "linear-gradient(180deg, #bdeeff 0%, #eafff1 100%)" }}>
+        <div style={{ textAlign: "center", padding: "clamp(18px, 4vw, 34px) 20px clamp(12px, 2.5vw, 18px)", background: "#bdeeff" }}>
           <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(10px, 2.6vw, 12px)", fontWeight: 700, letterSpacing: "0.15em", color: "#4c6b44", textTransform: "uppercase" }}>Now tracing</div>
           <div style={{ fontFamily: "'Baloo 2','Arial Black',sans-serif", fontSize: "clamp(20px, 6vw, 34px)", marginTop: 2, color: "#1c3a17", fontWeight: 800, textTransform: "uppercase", lineHeight: 1.1 }}>MOV AX, [ALPHA]</div>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: "clamp(6px, 1.5vw, 10px)", marginTop: 14, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: "clamp(6px, 1.5vw, 10px)", marginTop: "clamp(10px, 2.5vw, 14px)", flexWrap: "wrap" }}>
             {["fetch", "decode", "execute"].map((stage) => (
               <button key={stage} onClick={() => zoomToDistrict(stage)} className="xt-district-btn" style={districtBtnStyle}>
                 {STAGE_LABEL[stage]}
@@ -374,6 +460,7 @@ export default function InstructionCity() {
           <svg
             ref={svgRef}
             viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`}
+            preserveAspectRatio={isMobile ? "xMidYMid slice" : "xMidYMid meet"}
             width="100%"
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
@@ -383,8 +470,8 @@ export default function InstructionCity() {
             style={{
               display: "block",
               width: "100%",
-              aspectRatio: `${CANVAS_W} / ${CANVAS_H}`,
-              maxHeight: "62vh",
+              aspectRatio: isMobile ? "3 / 4.4" : `${CANVAS_W} / ${CANVAS_H}`,
+              maxHeight: isMobile ? "82vh" : "72vh",
               cursor: dragging ? "grabbing" : "grab",
               touchAction: "none",
               userSelect: "none",
@@ -416,7 +503,7 @@ export default function InstructionCity() {
             </g>
 
             <g style={{ transition: autoMove ? "transform 0.9s cubic-bezier(.65,0,.2,1)" : "none" }} transform={camTransform}>
-              <rect x={-CANVAS_W * 2} y={CANVAS_H * 0.24} width={CANVAS_W * 5} height={CANVAS_H} fill="url(#ic-ground)" />
+              <rect x={-CANVAS_W * 2} y={CANVAS_H * 0.24} width={CANVAS_W * 5} height={CANVAS_H * 6} fill="url(#ic-ground)" />
 
               {activeOp && (
                 <rect
@@ -443,12 +530,33 @@ export default function InstructionCity() {
 
             <rect x="0" y="0" width={CANVAS_W} height={CANVAS_H} fill="url(#ic-vignette)" pointerEvents="none" />
 
-            <g>
-              <rect x="0" y={CANVAS_H - 46} width={CANVAS_W} height="46" fill="#1c3a17" opacity="0.55" />
-              <text x={CANVAS_W / 2} y={CANVAS_H - 18} textAnchor="middle" fontFamily="'Nunito',sans-serif" fontWeight="700" fontSize="15" fill="#ffffff">
-                {activeOp ? activeOp.text : "Click a building to begin. Drag to pan, use +/− to zoom."}
-              </text>
-            </g>
+            {(() => {
+              const captionText = activeOp ? activeOp.text : "Click a building to begin. Drag to pan, use +/− to zoom.";
+              const fontSize = 15;
+              const sidePadding = 28;
+              // ~0.56 * fontSize approximates average glyph width for this
+              // bold Nunito text; visW is the actual on-screen viewBox width
+              // (narrower on mobile's "slice" crop), so this reflows correctly
+              // whether the canvas is fully visible or cropped.
+              const maxChars = Math.max(18, Math.floor((visW - sidePadding * 2) / (fontSize * 0.56)));
+              const lines = wrapText(captionText, maxChars, 3);
+              const lineHeight = 19;
+              const barPadding = 12;
+              const barHeight = barPadding * 2 + lines.length * lineHeight;
+              const barY = CANVAS_H - barHeight;
+              const firstLineY = barY + barPadding + lineHeight * 0.72;
+
+              return (
+                <g>
+                  <rect x="0" y={barY} width={CANVAS_W} height={barHeight} fill="#1c3a17" opacity="0.55" />
+                  <text x={CANVAS_W / 2} y={firstLineY} textAnchor="middle" fontFamily="'Nunito',sans-serif" fontWeight="700" fontSize={fontSize} fill="#ffffff">
+                    {lines.map((line, i) => (
+                      <tspan key={i} x={CANVAS_W / 2} dy={i === 0 ? 0 : lineHeight}>{line}</tspan>
+                    ))}
+                  </text>
+                </g>
+              );
+            })()}
           </svg>
 
           <div style={{ position: "absolute", bottom: 62, right: 14, display: "flex", flexDirection: "column", gap: 8 }}>

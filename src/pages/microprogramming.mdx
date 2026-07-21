@@ -7,8 +7,6 @@ readingTime: "6 minute read"
 
 import "../styles/exhibit-theme.css";
 import TitleHero from "../components/TitleHero.jsx"
-import TitleText from "../components/TitleText.jsx"
-import HeroCTA from "../components/HeroCTA.jsx"
 import cpu from "../assets/cpu.jpg";
 import ExhibitTabs from "../components/ExhibitTabs.astro"
 import ComponentPanel from "../components/ComponentPanel.jsx"
@@ -19,15 +17,12 @@ import InstructionCity from "../components/InstructionCity.jsx"
 import IntroPanel from "../components/IntroPanel.jsx"
 import DistrictPlate from "../components/DistrictPlate.jsx"
 import DecipherGame from "../components/DecipherGame.jsx"
+import Reveal from "../components/Reveal.jsx"
 
 <div class="xt-page">
 
 <div class="xt-hero xt-title-hero" style="position: relative;">
   <TitleHero client:load />
-  <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
-    <TitleText client:load />
-  </div>
-  <HeroCTA client:load />
 </div>
 
 <ExhibitTabs tabs={[
@@ -39,6 +34,7 @@ import DecipherGame from "../components/DecipherGame.jsx"
 
 <div id="overview" data-tab-panel="overview">
 
+<Reveal client:visible>
 <IntroPanel client:load>
 
 Every second, a modern computer executes billions of complex processes, seamlessly running applications and managing data. Beneath the surface of recognizable assembly instructions (ADD, SUB, MOV) lies a much deeper, foundational level of hardware control. This exhibit dives into that hidden layer to demonstrate the core concept of **microprogramming**.
@@ -55,39 +51,33 @@ It is the layer of control that sits between a machine instruction and the hardw
 To illustrate this, our simulation focuses closely on one instruction — **MOV AX, [ALPHA]** — and walks through exactly what happens as it travels through all three districts:
 
 </IntroPanel>
+</Reveal>
 
+<Reveal client:visible delay={0.15}>
 <ul class="xt-preview-list">
   <li><strong>Fetch</strong>The target address moves into the Memory Address Register (MAR), a memory read signal fires, and the raw instruction bytecode lands in the Instruction Register (IR).</li>
   <li><strong>Decode</strong>The Control Unit dissects the instruction into its opcode and operands to determine the execution path.</li>
   <li><strong>Execute</strong>Control signals pull the data from [ALPHA] and route it across the internal data bus into register AX.</li>
 </ul>
+</Reveal>
 
-<p class="xt-overview-followup">Head to <strong>Start</strong> to see this play out! <strong>Instruction City</strong> walks you through the MOV AX, [ALPHA] instruction step by step, and once you're ready, <strong>Be the CPU</strong> lets you test what you've learned: a challenge where you play Control Unit yourself, routing real instructions through Fetch, Decode, and Execute. Every wrong move costs a life.</p>
-
-</div>
-
-<div id="team" data-tab-panel="team">
-
-## Meet the Team
-
-<TeamRoster members={[
-  { name: "Austria, Ma. Alexandria", role: "idk" },
-  { name: "Campos, Don Oswin", role: "idk" },
-  { name: "Encallado, Edlynn Rei", role: "idk" },
-  { name: "Gildore, Andrei Miguel", role: "idk" },
-  { name: "Patricio, Anne Beatriz", role: "idk" },
-]} />
+<Reveal client:visible delay={0.3}>
+<p class="xt-overview-followup">Head to <strong>Try It Yourself</strong> to see this play out! <strong>Instruction City</strong> walks you through the MOV AX, [ALPHA] instruction step by step, and once you're ready, <strong>Be the CPU</strong> lets you test what you've learned: a challenge where you play Control Unit yourself, routing real instructions through Fetch, Decode, and Execute. Every wrong move costs a life.</p>
+</Reveal>
 
 </div>
 
 <div id="stages" data-tab-panel="stages">
 
+<Reveal client:visible>
 ## The Stages
 
 <CycleLoop client:load />
+</Reveal>
 
 ### Stage 1 · Fetch
 
+<Reveal client:visible>
 <div class="district-panel">
   <DistrictPlate index={1} total={3} label="Fetch" color="#eb4b3a" client:load />
 
@@ -101,9 +91,11 @@ The Fetch stage is the first step of the Fetch–Decode–Execute cycle. Its pri
     { term: "Instruction Register (IR)", def: "Stores the fetched instruction once it has been transferred from the MBR. The instruction remains in the IR until the CPU begins the Decode stage." },
   ]} />
 </div>
+</Reveal>
 
 ### Stage 2 · Decode
 
+<Reveal client:visible>
 <div class="district-panel">
   <DistrictPlate index={2} total={3} label="Decode" color="#3fae5c" client:load />
 
@@ -121,9 +113,11 @@ Once the Fetch stage finishes, the instruction in the **IR** (Instruction Regist
     The Decode stage splits every incoming instruction into two primary components: a separated opcode + operand(s) pair, and a route from the Control Unit telling the Execute stage what to handle next.
   </blockquote>
 </div>
+</Reveal>
 
 ### Stage 3 · Execute
 
+<Reveal client:visible>
 <div class="district-panel">
   <DistrictPlate index={3} total={3} label="Execute" color="#f2a52c" client:load />
 
@@ -142,22 +136,43 @@ After the opcode and operands are identified in the Decode stage, the instructio
     The Execute stage is where the Fetch–Decode–Execute cycle closes the loop: the route chosen by the Control Unit determines which components activate, since not every instruction touches the same hardware. Whether the result lands in a register, in memory, or in the Program Counter itself, execution ends with the CPU ready to fetch its next instruction.
   </blockquote>
 </div>
+</Reveal>
 
 </div>
 
 <div id="try-it-yourself" data-tab-panel="try-it-yourself">
 
+<Reveal client:visible>
 ## Instruction City
 
 <p class="xt-section-caption">Walk through the instruction cycle step by step, at your own pace.</p>
 
 <InstructionCity client:load />
+</Reveal>
 
+<Reveal client:visible delay={0.15}>
 ## Be the CPU
 
 <p class="xt-section-caption">Think you've got it? Prove it! A wrong move costs you a life.</p>
 
 <DecipherGame client:load />
+</Reveal>
+
+</div>
+
+<div id="team" data-tab-panel="team">
+
+<Reveal client:visible>
+## Meet the Team
+
+<TeamRoster members={[
+  { name: "Austria, Ma. Alexandria", role: "idk" },
+  { name: "Campos, Don Oswin", role: "idk" },
+  { name: "Encallado, Edlynn Rei", role: "idk" },
+  { name: "Gildore, Andrei Miguel", role: "idk" },
+  { name: "Patricio, Anne Beatriz", role: "idk" },
+]} />
+</Reveal>
 
 </div>
 
