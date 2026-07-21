@@ -6,7 +6,9 @@ readingTime: "6 minute read"
 ---
 
 import "../styles/exhibit-theme.css";
-import titleImg from "../assets/TitlePage.png";
+import TitleHero from "../components/TitleHero.jsx"
+import TitleText from "../components/TitleText.jsx"
+import HeroCTA from "../components/HeroCTA.jsx"
 import cpu from "../assets/cpu.jpg";
 import ExhibitTabs from "../components/ExhibitTabs.astro"
 import ComponentPanel from "../components/ComponentPanel.jsx"
@@ -20,8 +22,12 @@ import DecipherGame from "../components/DecipherGame.jsx"
 
 <div class="xt-page">
 
-<div class="xt-hero xt-title-hero">
-  <img src={titleImg.src} alt="Journey of an Instruction — Microprogramming inside the CPU" />
+<div class="xt-hero xt-title-hero" style="position: relative;">
+  <TitleHero client:load />
+  <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+    <TitleText client:load />
+  </div>
+  <HeroCTA client:load />
 </div>
 
 <ExhibitTabs tabs={[
@@ -56,7 +62,7 @@ To illustrate this, our simulation focuses closely on one instruction — **MOV 
   <li><strong>Execute</strong>Control signals pull the data from [ALPHA] and route it across the internal data bus into register AX.</li>
 </ul>
 
-<p class="xt-overview-followup">Head to <strong>Try It Yourself</strong> to see this play out! The <strong>Simulation</strong> walks you through the MOV AX, [ALPHA] instruction step by step, and once you're ready, <strong>Be the CPU</strong> lets you test what you've learned: a challenge where you play Control Unit yourself, routing real instructions through Fetch, Decode, and Execute. Every wrong move costs a life.</p>
+<p class="xt-overview-followup">Head to <strong>Start</strong> to see this play out! <strong>Instruction City</strong> walks you through the MOV AX, [ALPHA] instruction step by step, and once you're ready, <strong>Be the CPU</strong> lets you test what you've learned: a challenge where you play Control Unit yourself, routing real instructions through Fetch, Decode, and Execute. Every wrong move costs a life.</p>
 
 </div>
 
@@ -141,7 +147,7 @@ After the opcode and operands are identified in the Decode stage, the instructio
 
 <div id="try-it-yourself" data-tab-panel="try-it-yourself">
 
-## Simulation
+## Instruction City
 
 <p class="xt-section-caption">Walk through the instruction cycle step by step, at your own pace.</p>
 
