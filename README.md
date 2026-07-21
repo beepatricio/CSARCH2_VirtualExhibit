@@ -150,12 +150,6 @@ This project was developed by the group members. AI tools were used only to assi
 </p>
 
 ---
-### To-Do for Final Submission
-* [ ] Complete interactive elements for the remaining execution stages.
-* [ ] Finalize Custom Exhibit Layout: Continue development of our own website layout, moving beyond the base template to fully integrate our chosen thematic design across all navigational elements.
-* [ ] Finalize deployment testing to ensure zero routing errors on the live GitHub Pages site.
-
----
 ## References
 
 * https://react.dev/reference/react/useEffect
