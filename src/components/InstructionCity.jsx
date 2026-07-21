@@ -352,8 +352,8 @@ export default function InstructionCity() {
   };
 
   const onPointerDown = (e) => {
-    if (e.button !== 0) return; // left-click / primary touch only
-    e.preventDefault(); // stop the browser from starting a text-selection drag
+    if (e.button !== 0) return;
+    e.preventDefault();
     startDragAt(e.clientX, e.clientY);
     if (e.currentTarget.setPointerCapture) {
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
