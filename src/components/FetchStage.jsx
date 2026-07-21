@@ -66,16 +66,17 @@ function DiagramBox({ label, revealed }) {
   return (
     <div
       style={{
+        padding: "12px 10px",
         flex: "1 1 100px",
-        padding: "10px 8px",
+        fontFamily: "'Baloo 2', 'Arial Black', sans-serif",
+        fontSize: "13px",
         textAlign: "center",
-        borderRadius: "6px",
-        fontFamily: "monospace",
-        fontSize: "12px",
-        fontWeight: "bold",
-        border: "1px solid #2e2a24",
-        background: "#0c0a09",
-        color: "#e7e5e4",
+        borderRadius: "12px",
+        fontWeight: "900",
+        border: "3px solid #1c3a17",
+        background: revealed ? "#ffffff" : "#e9e2cf",
+        color: revealed ? "#1c3a17" : "#9aa896",
+        boxShadow: "3px 3px 0 #1c3a17",
       }}
     >
       {revealed ? label : "?"}
@@ -87,9 +88,10 @@ function DiagramArrow() {
   return (
     <div
       style={{
-        padding: "0 4px",
-        fontSize: "14px",
-        color: "#3f3a34",
+        padding: "0 8px",
+        fontSize: "22px",
+        fontweight: "900",
+        color: "#1c3a17",
       }}
     >
       →
@@ -102,28 +104,28 @@ function FetchDiagram({ currentStep, locked }) {
     <div
       style={{
         padding: "1rem",
-        background: "#0c0a09",
-        border: "1px solid #1c1917",
-        borderRadius: "6px",
+        background: "#eafff1",
+        border: "3px solid #1c3a17",
+        borderRadius: "14px",
+        boxShadow:"4px 4px 0 #1c3a17",
         marginBottom: "1.25rem",
       }}
     >
       <p
         style={{
-          margin: "0 0 10px 0",
+          margin: "0 0 12px 0",
           fontSize: "10px",
-          letterSpacing: "0.1em",
+          letterSpacing: "0.12em",
           textTransform: "uppercase",
-          color: "#78716c",
-          fontFamily: "monospace",
+          color: "#4c6b44",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontWeight: "700",
         }}
       >
         Fetch Data Diagram
       </p>
-      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "2px" }}>
+      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px" }}>
         {FETCH_DIAGRAM_STAGES.map((label, idx) => {
-          // A stage's box reveals its label once you've moved past it, or the
-          // instant you answer its own question correctly (locked === true).
           const revealed = idx < currentStep || (idx === currentStep && locked);
           return (
             <div key={label} style={{ display: "flex", alignItems: "center" }}>
@@ -183,11 +185,11 @@ export default function FetchStage({ onComplete, onWrong, onCorrect }) {
 
   return (
     <div>
-      <span style={{ color: "#ef4444", fontSize: "11px", fontWeight: "bold" }}>
+      <span style={{ color: "#ef4444", fontFamily: "'Baloo 2', 'Arial Black', sans-serif",fontSize: "12px", fontWeight: "900", letterSpacing: "0.08em", }}>
         [ STAGE 01: FETCH PHASE]
       </span>
 
-      <p style={{ fontSize: "12px", color: "#a8a29e", margin: "4px 0 12px 0", fontFamily: "monospace" }}>
+      <p style={{ fontSize: "12px", color: "#4c6b44", margin: "4px 0 12px 0", fontFamily: "'JetBrains Mono', monospace", fontWeight: "700", }}>
         Step {currentStep + 1} / {FETCH_STEPS.length}
       </p>
 
@@ -196,18 +198,19 @@ export default function FetchStage({ onComplete, onWrong, onCorrect }) {
       <div
         style={{
           padding: "1.25rem",
-          background: "#0c0a09",
-          border: "1px solid #1c1917",
-          borderRadius: "6px",
+          background: "#ffffff",
+          border: "3px solid #1c3a17",
+          borderRadius: "14px",
+          boxShadow: "4px 4px 0 #1c3a17",
           marginBottom: "1.25rem",
         }}
       >
         <p
           style={{
-            color: "#e7e5e4",
-            fontFamily: "monospace",
+            color: "#1c3a17",
+            fontFamily: "'Nunito', sans-serif",
             fontSize: "14px",
-            fontWeight: "bold",
+            fontWeight: "800",
             marginBottom: "14px",
           }}
         >
@@ -229,14 +232,15 @@ export default function FetchStage({ onComplete, onWrong, onCorrect }) {
               style={{
                 padding: "12px",
                 textAlign: "left",
-                background: "#0c0a09",
-                border: "1px solid #2e2a24",
-                borderRadius: "6px",
+                background: locked ? "#f3f3ed" : "#fffbea",
+                border: "3px solid #1c3a17",
+                borderRadius: "10px",
+                boxShadow: "3px solid #1c3a17",
                 cursor: locked ? "not-allowed" : "pointer",
-                color: "#e7e5e4",
-                fontFamily: "monospace",
+                color: "#1c3a17",
+                fontFamily: "'Nunito', sans-serif",
                 fontSize: "13px",
-                fontWeight: "bold",
+                fontWeight: "800",
               }}
             >
               {choice}

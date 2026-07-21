@@ -9,8 +9,8 @@
 
 - Austria, Ma. Alexandria
 - Campos, Don Oswin
-- Encallado, Edlynn
-- Gildore, Andrei
+- Encallado, Edlynn Rei
+- Gildore, Andrei Miguel
 - Patricio, Anne Beatriz
 
 

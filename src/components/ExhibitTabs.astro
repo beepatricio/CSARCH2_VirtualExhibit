@@ -1,0 +1,139 @@
+---
+// ExhibitTabs.astro
+// Fixed nav strip. Clicking a tab scrolls to its section; the active tab
+// updates automatically as the user scrolls (scrollspy), no panel-swapping.
+export interface Props {
+  tabs: { id: string; label: string }[];
+}
+const { tabs } = Astro.props;
+
+// Same 9x9 pixel star bitmap and two-tone fill split used in TitleHero.jsx's
+// canvas drawStar(), just rendered once as a static SVG for the menu button.
+const STAR = [
+  "....#....",
+  "...###...",
+  "...###...",
+  "#########",
+  ".#######.",
+  "..#####..",
+  ".##.#.##.",
+  "##.....##",
+  "#.......#",
+];
+const CELL = 2;
+const SIZE = STAR.length * CELL;
+const starCells: { x: number; y: number; fill: string }[] = [];
+STAR.forEach((row, r) => {
+  for (let c = 0; c < row.length; c++) {
+    if (row[c] !== "#") continue;
+    starCells.push({ x: c * CELL, y: r * CELL, fill: c + r < 8 ? "#ffe066" : "#e8952a" });
+  }
+});
+---
+
+<button
+  type="button"
+  class="xt-tabs-toggle"
+  aria-expanded="false"
+  aria-controls="xt-tabs-panel"
+  aria-label="Toggle section menu"
+>
+  <svg class="xt-tabs-toggle__star" viewBox={`0 0 ${SIZE} ${SIZE}`} xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    {starCells.map((cell) => (
+      <rect x={cell.x - 0.6} y={cell.y - 0.6} width={CELL + 1.2} height={CELL + 1.2} fill="#1c3a17" />
+    ))}
+    {starCells.map((cell) => (
+      <rect x={cell.x} y={cell.y} width={CELL} height={CELL} fill={cell.fill} />
+    ))}
+  </svg>
+</button>
+
+<nav class="xt-tabs" id="xt-tabs-panel" aria-label="Exhibit sections">
+  {tabs.map((tab, i) => (
+    <button type="button" class="xt-tabs__btn" data-target={tab.id} aria-selected={i === 0 ? "true" : "false"}>
+      {tab.label}
+    </button>
+  ))}
+</nav>
+
+<script>
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>(".xt-tabs__btn"));
+  const sections = buttons
+    .map((btn) => document.getElementById(btn.dataset.target || ""))
+    .filter((el): el is HTMLElement => !!el);
+
+  const toggle = document.querySelector<HTMLButtonElement>(".xt-tabs-toggle");
+  const tabsNav = document.querySelector<HTMLElement>(".xt-tabs");
+
+  toggle?.addEventListener("click", () => {
+    const isOpen = tabsNav?.classList.toggle("xt-tabs--open");
+    toggle.setAttribute("aria-expanded", String(!!isOpen));
+  });
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.getElementById(btn.dataset.target || "")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      // mobile: close the dropdown once a section is picked
+      tabsNav?.classList.remove("xt-tabs--open");
+      toggle?.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  // mobile: close the dropdown on any click outside the toggle/panel itself
+  document.addEventListener("click", (e) => {
+    if (!tabsNav?.classList.contains("xt-tabs--open")) return;
+    const target = e.target as Node;
+    if (tabsNav.contains(target) || toggle?.contains(target)) return;
+    tabsNav.classList.remove("xt-tabs--open");
+    toggle?.setAttribute("aria-expanded", "false");
+  });
+
+  function setActive(id: string) {
+    buttons.forEach((btn) => btn.setAttribute("aria-selected", String(btn.dataset.target === id)));
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visible = entries.filter((e) => e.isIntersecting);
+      if (visible.length > 0) {
+        const topMost = visible.reduce((a, b) => (a.intersectionRatio > b.intersectionRatio ? a : b));
+        setActive(topMost.target.id);
+      }
+    },
+    { rootMargin: "-40% 0px -55% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
+  );
+
+  sections.forEach((el) => observer.observe(el));
+
+  // ----- Header "grass lock" -----
+  // The header stays transparent (sky/trees show through) while the hero
+  // scene is on screen. Once the hero's own grass strip scrolls up far
+  // enough to pass under the fixed header, the header fades in its own
+  // grass panel so it looks like that strip has "caught" and locked in place.
+  const header = document.querySelector<HTMLElement>(".header");
+  const hero = document.querySelector<HTMLElement>(".xt-title-hero");
+
+  if (header && hero) {
+    let ticking = false;
+    function updateGrassLock() {
+      ticking = false;
+      const headerH = header.offsetHeight;
+      const heroBottom = hero.getBoundingClientRect().bottom;
+      header.classList.toggle("xt-header--grass", heroBottom <= headerH);
+    }
+    function onScrollOrResize() {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(updateGrassLock);
+      }
+    }
+    updateGrassLock();
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+  } else if (header) {
+    // No hero on this page (e.g. a plain content page reached straight from
+    // a link, not the landing scene) — there's nothing for the header to
+    // "catch up" to, so just show the grass panel from the start.
+    header.classList.add("xt-header--grass");
+  }
+</script>

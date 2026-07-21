@@ -1,0 +1,100 @@
+---
+import "../styles/exhibit-theme.css";
+
+interface Member {
+  name: string;
+  role: string;
+}
+interface Props {
+  members: Member[];
+}
+const { members } = Astro.props;
+
+// Re-introducing the stage colors for the badge backgrounds
+const stageColors = ["#eb4b3a", "#3fae5c", "#f2a52c", "#4fc3e8", "#a86bd9"];
+
+// Helper function to extract initials (First Name + Last Name)
+function getInitials(fullName: string) {
+  if (fullName.includes(',')) {
+    // Splits "PATRICIO, ANNE BEATRIZ" into ["PATRICIO", " ANNE BEATRIZ"]
+    const [lastNamePart, firstNamePart] = fullName.split(',');
+    const lastInitial = lastNamePart.trim().charAt(0);
+    const firstInitial = firstNamePart.trim().charAt(0);
+    return (firstInitial + lastInitial).toUpperCase();
+  }
+  
+  // Fallback just in case a name is formatted as "First Last"
+  const parts = fullName.trim().split(' ');
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+---
+
+<div class="exhibit-theme xt-roster">
+  {members.map((m, i) => (
+    <div class="xt-card" style={`--accent: ${stageColors[i % stageColors.length]}`}>
+      <div class="xt-card-badge">{getInitials(m.name)}</div>
+      <div class="xt-card-name">{m.name}</div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .xt-roster {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 2rem 0;
+  }
+  
+  .xt-card {
+    background: #ffffff;
+    border: 3px solid var(--xt-fg);
+    border-radius: 18px;
+    box-shadow: 5px 5px 0 var(--xt-fg);
+    padding: 26px 18px;
+    text-align: center;
+    transition: transform 0.15s ease;
+    
+    /* Stacks the badge and the name vertically and centers them */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px; 
+  }
+  
+  .xt-card:hover { 
+    transform: translateY(-4px); 
+  }
+  
+  .xt-card-badge {
+    width: 64px; 
+    height: 64px;
+    margin: 0 auto 16px; /* Spacing between the circle and the name */
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--xt-fg);
+    
+    /* Centers the text inside the circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Styling for the initials */
+    font-family: "Nunito", sans-serif;
+    font-weight: 900;
+    font-size: 24px;
+    color: #ffffff; 
+    letter-spacing: 1px;
+  }
+  
+  .xt-card-name {
+    font-family: var(--xt-display);
+    font-weight: 800;
+    font-size: 16px;
+    text-transform: uppercase;
+    color: var(--xt-fg);
+    line-height: 1.2;
+  }
+</style>
