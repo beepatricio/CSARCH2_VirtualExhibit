@@ -22,9 +22,6 @@ const BUILDING_IMAGES = {
 };
 
 const BW = 300, BH = 355;
-// Most building art has transparent padding above its actual roofline/base, so
-// the visual "ground" sits above the raw box bottom. This factor controls
-// where the shadow + label sit relative to the box, pulled up to hug the art.
 const BASE_FACTOR = 0.8;
 
 const BUILDINGS = {
@@ -329,26 +326,21 @@ export default function InstructionCity() {
     setActiveDistrict("fetch");
   }
 
-  const onPointerDown = (e) => {
-    if (e.button !== 0) return; // left-click / primary touch only
-    e.preventDefault(); // stop the browser from starting a text-selection drag
+  const startDragAt = (clientX, clientY) => {
     setAutoMove(false);
     setDragging(true);
-    dragStart.current = { x: e.clientX, y: e.clientY, camX: camera.x, camY: camera.y };
-    if (e.currentTarget.setPointerCapture) {
-      try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
-    }
+    dragStart.current = { x: clientX, y: clientY, camX: camera.x, camY: camera.y };
   };
 
-  const onPointerMove = (e) => {
-    if (!dragging || !dragStart.current || !svgRef.current) return;
+  const moveDragTo = (clientX, clientY) => {
+    if (!dragStart.current || !svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
     const start = dragStart.current;
     const ratio = (visibleVBWidthRef.current || CANVAS_W) / rect.width;
-    const dx = (e.clientX - start.x) * ratio;
-    const dy = (e.clientY - start.y) * ratio;
+    const dx = (clientX - start.x) * ratio;
+    const dy = (clientY - start.y) * ratio;
 
     setCamera((c) =>
       clampCamera({
@@ -357,6 +349,20 @@ export default function InstructionCity() {
         scale: c.scale,
       })
     );
+  };
+
+  const onPointerDown = (e) => {
+    if (e.button !== 0) return; // left-click / primary touch only
+    e.preventDefault(); // stop the browser from starting a text-selection drag
+    startDragAt(e.clientX, e.clientY);
+    if (e.currentTarget.setPointerCapture) {
+      try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+    }
+  };
+
+  const onPointerMove = (e) => {
+    if (!dragging) return;
+    moveDragTo(e.clientX, e.clientY);
   };
 
   const endDrag = (e) => {
@@ -368,6 +374,39 @@ export default function InstructionCity() {
   };
 
   useEffect(() => () => rafRef.current && cancelAnimationFrame(rafRef.current), []);
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e) => {
+      if (e.touches.length !== 1) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      startDragAt(t.clientX, t.clientY);
+    };
+    const onTouchMove = (e) => {
+      if (!dragStart.current || e.touches.length !== 1) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      moveDragTo(t.clientX, t.clientY);
+    };
+    const onTouchEnd = () => {
+      setDragging(false);
+      dragStart.current = null;
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: false });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd, { passive: false });
+    el.addEventListener("touchcancel", onTouchEnd, { passive: false });
+
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [camera.x, camera.y]);
 
   // Failsafe
   useEffect(() => {
